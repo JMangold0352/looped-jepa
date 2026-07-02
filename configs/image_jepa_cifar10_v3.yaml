@@ -1,0 +1,57 @@
+# v3: the publication baseline for the ~10M-param I-JEPA on CIFAR-10.
+#
+# Inherits image_jepa_cifar10.yaml, which now carries the two code-level fixes
+# that v2/v2b validated and that this run keeps:
+#
+#   1. Deterministic target subselection (src/jepa/masking.py). The "unbiased"
+#      random subselection added in the 45082fa commit caused representation
+#      collapse at this scale (v2/v2b regressed to ~64% vs v1's ~80% linear
+#      probe). We reverted to the original sorted(targets)[:N] behavior; target
+#      positions still vary per-sample via the sampled block geometry.
+#   2. EMA momentum cap 0.9999 (now in the base config). v1's ema_momentum_end
+#      =1.0 made the final EMA step a no-op and feat_std decayed 0.28->0.18.
+#
+#   (The dead tgt_proj parameter was already removed in the 45082fa commit;
+#    honest trainable count is 9,866,240.)
+#
+# Changes relative to v1, aimed at an honest ~83% top-1 (not forcing 85%):
+#
+#   A. 300 epochs (up from 200): more compute for the cosine schedule.
+#   B. Stronger augmentation: RandAugment(n=2, m=9) + a conservative
+#      RandomResizedCrop (scale 0.5-1.0). RRC is kept mild because at 32x32
+#      aggressive cropping destroys the patch structure I-JEPA predicts over.
+#   C. Tuned linear probe as the official final number (cosine LR + sweep over
+#      {3e-4, 1e-3, 3e-3} + feature standardization). The cheap fixed-LR probe
+#      still runs every 25 epochs for trend monitoring.
+#
+# Unchanged from v1 (deliberately): batch_size 256, AdamW lr=2e-3, wd 0.05,
+# 15-epoch warmup, encoder/predictor widths, masking geometry.
+_base_: image_jepa_cifar10.yaml
+
+augmentation:
+  # RandAugment is the primary strength lever. n=2 keeps it light at 32x32;
+  # higher n (e.g. 3) was observed to hurt small-image SSL in prior work.
+  kind: randaugment
+  randaugment_n: 2
+  randaugment_m: 9
+  # Conservative RRC: area in [0.5, 1.0] of the 32x32 image. Going below 0.5
+  # removes too much structure for 4x4 patches to remain discriminative.
+  use_rrc: true
+  rrc_scale: [0.5, 1.0]
+  rrc_ratio: [0.8, 1.25]
+  rrc_after_ra: false
+
+train:
+  epochs: 300
+  run_dir: runs/cifar10_baseline_v3
+  checkpoint_dir: checkpoints/baseline_v3
+
+eval:
+  # Trend probe: cheap, fixed-LR, every 25 epochs.
+  probe_lr: 0.001
+  probe_weight_decay: 0.0001
+  probe_epochs: 20
+  probe_every_epochs: 25
+  # Official final number: tuned probe (cosine LR + sweep + standardization).
+  tuned_probe_epochs: 100
+  tuned_lr_grid: [0.0003, 0.001, 0.003]

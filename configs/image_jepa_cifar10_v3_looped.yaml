@@ -1,0 +1,17 @@
+# v3 + looped predictor: same encoder, aug, and schedule as the v3 baseline.
+# Only change: the standard ViT predictor is wrapped in LoopedPredictor (2 steps,
+# optional exit gate). Keeps the baseline config/checkpoint untouched.
+_base_: image_jepa_cifar10_v3.yaml
+
+predictor:
+  looped: true
+  ouro: false
+  norm: layer
+  sandwich_norm: false
+  max_loops: 2
+  use_exit_gate: true
+
+train:
+  run_dir: runs/cifar10_v3_looped
+  checkpoint_dir: checkpoints/baseline_v3_looped
+  exit_entropy_beta: 0.01

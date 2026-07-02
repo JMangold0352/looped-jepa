@@ -1,0 +1,15 @@
+# Shared v3 recipe for looped-predictor ablations.
+# Each variant only overrides predictor/train paths via run_ablations.py.
+_base_: ../image_jepa_cifar10_v3_looped.yaml
+
+predictor:
+  looped: true
+  ouro: false
+  norm: layer
+  sandwich_norm: false
+  max_loops: 2
+  use_exit_gate: true
+
+train:
+  epochs: 300
+  exit_entropy_beta: 0.01

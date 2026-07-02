@@ -1,0 +1,20 @@
+# Full JEPA-Ouro stack: looped recurrence + ouro_ready predictor
+# (sandwich RMSNorm, SwiGLU, 2D RoPE). Inherits the strong baseline recipe.
+#
+# Predictor embed_dim is trimmed 128 -> 112 so total trainable params stay
+# under 10M (~9.86M) despite the wider SwiGLU blocks in ouro_ready.
+_base_: image_jepa_cifar10.yaml
+
+predictor:
+  embed_dim: 112
+  looped: true
+  ouro: true
+  max_loops: 4
+  use_exit_gate: true
+
+train:
+  run_dir: runs/cifar10_ouro_looped
+  checkpoint_dir: checkpoints/ouro_looped
+
+eval:
+  probe_every_epochs: 25

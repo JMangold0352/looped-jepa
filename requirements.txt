@@ -1,0 +1,21 @@
+# Full runtime dependencies (pip install -r requirements.txt)
+# Recommended: uv sync --extra dev  (uses pyproject.toml + uv.lock)
+#
+# Optional extras (see pyproject.toml):
+#   demo     : gradio (app.py)
+#   viz      : scikit-learn (t-SNE figures)
+#   transfer : roboflow, scikit-learn
+
+torch>=2.2.0
+torchvision>=0.17.0
+numpy>=1.26.0
+pyyaml>=6.0
+tqdm>=4.66.0
+matplotlib>=3.8.0
+pillow>=10.0.0
+
+# Demo (optional; included here for Hugging Face Spaces / pip-only installs)
+gradio>=4.0.0
+
+# Visualization + transfer (optional but commonly needed)
+scikit-learn>=1.4.0

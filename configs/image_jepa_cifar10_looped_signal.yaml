@@ -1,0 +1,11 @@
+# Quick looped signal run (50 epochs): param-matched recurrence A/B.
+_base_: image_jepa_cifar10_looped.yaml
+
+train:
+  epochs: 50
+  warmup_epochs: 5
+  run_dir: runs/cifar10_looped_signal
+  checkpoint_dir: checkpoints/looped_signal
+
+eval:
+  probe_every_epochs: 10

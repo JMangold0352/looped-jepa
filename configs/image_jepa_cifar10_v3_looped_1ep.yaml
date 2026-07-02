@@ -1,0 +1,8 @@
+# One-epoch timing config for smoke checks (inherits full v3-looped recipe).
+_base_: image_jepa_cifar10_v3_looped.yaml
+
+data:
+  num_workers: 0
+
+train:
+  epochs: 1

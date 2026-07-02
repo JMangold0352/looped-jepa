@@ -1,0 +1,20 @@
+_base_: image_jepa_cifar10_v5.yaml
+
+# 2-epoch smoke: confirm v5 (two-view on v3 baseline) trains without the
+# feat_std collapse that killed v4. Inherits all v5 settings; only overrides
+# epochs and disables the probe sweep.
+two_view: true
+
+data:
+  num_workers: 4
+
+train:
+  epochs: 2
+  warmup_epochs: 1
+  run_dir: runs/cifar10_v5_smoke
+  checkpoint_dir: checkpoints/v5_smoke
+  use_wandb: false
+
+eval:
+  probe_every_epochs: 0
+  tuned_probe_epochs: 0

@@ -1,0 +1,107 @@
+# v4: push the ~10M-param I-JEPA on CIFAR-10 toward a clean 80-81% top-1.
+#
+# v3 landed at 77.21% (tuned probe). Diagnosis: the periodic probe plateaued
+# at ~76% from epoch 200 onward while loss kept dropping, so v3 hit a
+# representation-quality ceiling, not a convergence one. The tuned probe added
+# only +0.8 pts over the fixed-LR probe, confirming the features themselves
+# (not the probe) were the bottleneck.
+#
+# Five changes vs v3, ranked by expected leverage. Each is a single, named
+# deviation from v3 so the A/B is readable:
+#
+#   1. TWO-VIEW I-JEPA (highest leverage). v3 ran single-view: the student
+#      context encoder and the EMA target encoder saw the SAME augmented
+#      image. The reference I-JEPA recipe uses two views: a strongly-augmented
+#      student view (context) and a weakly-augmented teacher view (targets).
+#      This decouples the prediction target from the student's augmentation,
+#      which is what actually builds transferable features. Set via the
+#      top-level `two_view: true` flag (see src/jepa/data/cifar10.py
+#      TwoViewTransform + src/jepa/models/jepa.py forward(teacher_images=...)).
+#
+#   2. HARDER MASKING RATIO. v3 used ctx=32 / tgt=16 of 64 patches (student
+#      saw 50%, predicted 25%): an easy task. v4 lowers context and raises
+#      targets so the student sees ~35% and predicts ~35%, forcing richer
+#      features. Config-only (masking.* patches ranges).
+#
+#   3. COSINE EMA -> 1.0. v3 ramped 0.996 -> 0.9999 linearly (the 0.9999 cap
+#      was a v3 guard against the v1 no-op-final-step bug). v4 uses the
+#      reference cosine schedule 0.996 -> 1.0 (DINO/MoCo-v3/I-JEPA form):
+#      stays below the linear ramp early so the teacher tracks the
+#      fast-changing student, and above it late so the teacher nearly freezes
+#      as the student converges. It reaches 1.0 (one no-op step out of ~58k)
+#      only at the very end.
+#
+#   4. STRONGER AUGMENTATION. v3: RandAugment(n=2, m=9). v4: m=12 (still safe
+#      at 32x32) + RandomErasing(p=0.25). Erasing is directly complementary
+#      to the masking objective: it forces the model to not over-rely on any
+#      one patch, which is exactly what I-JEPA wants.
+#
+#   5. DROP-PATH 0.1 -> 0.2. Standard for ViT-S/Ti at 300 epochs; regularizes
+#      the plateau v3 hit.
+#
+# Unchanged from v3 (deliberately): 300 epochs, batch 256, AdamW lr=2e-3,
+# wd 0.05, 15-epoch warmup, encoder 384/5/6, predictor 128/4/4 (capacity is
+# maxed at 9.82M/10M, every depth/width combo was checked), tuned linear
+# probe as the official number. No VICReg (regressed in v2). No looped
+# predictor (separate Part-2 thread).
+#
+# Expected: ~80-81% official top-1. Change 1 is the biggest swing; it closes
+# the gap to the reference I-JEPA recipe, which is the most likely reason v3
+# underperformed.
+_base_: image_jepa_cifar10.yaml
+
+# Top-level flag: build a TwoViewTransform (strong student + weak teacher).
+two_view: true
+
+augmentation:
+  # Change 4: stronger RandAugment + RandomErasing.
+  kind: randaugment
+  randaugment_n: 2
+  randaugment_m: 12  # v3 was 9
+  use_rrc: true
+  rrc_scale: [0.5, 1.0]
+  rrc_ratio: [0.8, 1.25]
+  rrc_after_ra: false
+  # RandomErasing applied post-normalize (standard recipe). Complementary to
+  # I-JEPA masking: forces the model not to over-rely on any single patch.
+  random_erasing_p: 0.25
+  random_erasing_scale: [0.02, 0.33]
+  random_erasing_ratio: [0.3, 3.3]
+
+masking:
+  num_target_blocks: 4
+  target_scale: [0.15, 0.2]
+  context_scale: [0.85, 1.0]
+  # Change 2: harder ratio. v3 was ctx [24,40] / tgt [10,22] (avg ~32/~16).
+  # v4: ctx [18,28] / tgt [18,28]: student sees ~35%, predicts ~35%.
+  # Symmetric ranges so the task is balanced; positions still vary per sample
+  # and counts still vary per batch (uniform within batch for stackability).
+  context_patches_range: [18, 28]
+  target_patches_range: [18, 28]
+  fixed_context_patches: 22
+  fixed_target_patches: 22
+
+encoder:
+  # Change 5: stronger stochastic depth for the 300-epoch schedule.
+  drop_path: 0.2  # v3 was 0.1
+
+train:
+  epochs: 300
+  # Change 3: cosine EMA schedule to 1.0 (the reference I-JEPA recipe).
+  # Reaches 1.0 only at the final step (one no-op out of ~58k is negligible);
+  # spends most of training at higher momentum than the v3 linear ramp.
+  ema_schedule: cosine
+  ema_momentum_start: 0.996
+  ema_momentum_end: 1.0
+  run_dir: runs/cifar10_baseline_v4
+  checkpoint_dir: checkpoints/baseline_v4
+
+eval:
+  # Trend probe: cheap, fixed-LR, every 25 epochs (unchanged from v3).
+  probe_lr: 0.001
+  probe_weight_decay: 0.0001
+  probe_epochs: 20
+  probe_every_epochs: 25
+  # Official final number: tuned probe (cosine LR + sweep + standardization).
+  tuned_probe_epochs: 100
+  tuned_lr_grid: [0.0003, 0.001, 0.003]
