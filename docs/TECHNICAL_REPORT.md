@@ -22,7 +22,7 @@ flowchart LR
 Components:
 
 1. **Encoder**: ViT over visible context patches (trainable)
-2. **Target encoder**: EMA copy encoding full image (frozen, stop-gradient targets)
+2. **Target encoder**: exponential moving average (EMA) copy encoding the full image (frozen, stop-gradient targets)
 3. **Predictor**: narrow ViT predicting target patch embeddings from context
 
 ## Baseline results (v3)
@@ -38,9 +38,10 @@ Healthy `feat_std` (>0.15) indicates no representation collapse.
 
 ## Looped predictor extension
 
-The Ouro-style looped predictor re-applies the predictor block stack for multiple
-steps. An optional exit gate encourages diverse exit depths. Ablation results
-are produced via `scripts/ablation_loops.py` and saved to `runs/ablation_results.json`.
+The looped predictor (Ouroboros-style: it feeds its own output back through the same
+weights) re-applies the predictor block stack for multiple steps. An optional exit gate
+encourages diverse exit depths. Ablation results are produced via
+`scripts/ablation_loops.py` and saved to `runs/ablation_results.json`.
 
 ## Visualizations
 
@@ -81,7 +82,7 @@ python scripts/transfer_probe.py --dataset folder --data-dir data/transfer --che
 
 ```bash
 uv sync --extra demo
-python scripts/gradio_demo.py
+python app.py
 ```
 
 ## Reproducibility
@@ -95,4 +96,4 @@ invariants.
 v3 remains the best single-view recipe at this scale. Failed v4/v5 experiments
 (two-view, harder masking) are documented in `REPORT.md`. The package is structured
 for extension: looped predictor ablations, transfer probes, visual diagnostics, and
-a demo suitable for portfolio presentation.
+an interactive demo.

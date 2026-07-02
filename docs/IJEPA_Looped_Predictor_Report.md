@@ -1,7 +1,7 @@
 ---
 title: "I-JEPA with a Looped Predictor: Iterative Refinement, Stability Ablations, and What I Learned"
-date: 2026-07-02
-author: jepa-ouro
+date: 2025-07-02
+author: John Mangold
 tags: [I-JEPA, self-supervised learning, recurrent predictors, world models, CIFAR-10]
 ---
 
@@ -27,7 +27,7 @@ This document is the full story: architecture, experiments, figures, failure mod
 
 That setup is already a primitive **world model**: the network learns to infer hidden structure from partial observations. But in standard I-JEPA the predictor is a shallow feed-forward ViT, one pass from context latents to target latents.
 
-Biological and robotic perception rarely works that way. Agents **iterate**: a coarse hypothesis, then refinement. In model-based RL and latent dynamics literature, recurrent computation at fixed parameter budget is an old idea (think shallow iterative inference, recurrent depth, universal transformers). The question I cared about was narrow and testable:
+Biological and robotic perception rarely works that way. Agents **iterate**: they form a coarse hypothesis, then refine it. In the model-based reinforcement learning (RL) and latent-dynamics literature, recurrent computation at a fixed parameter budget is an old idea (for example, shallow iterative inference, recurrent depth, and universal transformers). The question I cared about was narrow and testable:
 
 > *If the JEPA predictor is made recurrent (same weights, multiple steps, optional early exit), do the representations improve without growing the model?*
 
@@ -47,7 +47,7 @@ CIFAR-10 at 32×32 is a harsh but honest testbed. It is small enough to run full
 | Trainable params     | **9,816,960** (~9.9M)                                           |
 | Optimizer            | AdamW, lr `2e-3`, wd `0.05`, batch 256                          |
 | Schedule             | 300 epochs, 15-epoch warmup → cosine                            |
-| Augmentation         | RandAugment(2, 9) + mild RRC (scale 0.5–1.0)                    |
+| Augmentation         | RandAugment(2, 9) + mild random-resized crop, RRC (scale 0.5–1.0) |
 | EMA teacher          | momentum `0.996 → 0.9999` (capped below 1.0)                    |
 | Masking              | Context 24–40 patches, target 10–22; deterministic subselection |
 
@@ -242,7 +242,7 @@ In-domain CIFAR-10 probing is the wrong sole metric for a model aimed at **world
 | **frozen v3 looped** | **76.75%** | 75.43%   | SSL on CIFAR-10 only  |
 | scratch ResNet18     | 77.50%     | 67.06%   | End-to-end on EuroSAT |
 
-The looped encoder gains **+4.0 pp** top-1 over the baseline despite losing in-domain. Macro F1 is essentially tied, and both frozen SSL models trail scratch ResNet18 on raw accuracy but beat it badly on F1 balance: the ResNet overfits the dominant classes.
+The looped encoder gains **+4.0 pp** top-1 over the baseline despite losing in-domain. Macro F1 is essentially tied, and both frozen self-supervised (SSL) models trail the scratch ResNet18 on raw accuracy but beat it clearly on F1 balance: the ResNet overfits the dominant classes.
 
 Figure 10 (`results/transfer/qualitative_baseline_gradcam.png`): probe-guided saliency on EuroSAT (baseline encoder; green = correct, red = incorrect).
 
@@ -291,7 +291,7 @@ If you are building toward embodied world models, the looped predictor is a plau
 
 **Action-conditioned JEPA.** The natural next step for robotics is predicting latents of **future** observations conditioned on actions; recurrence in the predictor mirrors iterative planning horizons.
 
-**Temporal / video JEPA.** Loops over spatial targets are a stepping stone; loops over **time** are closer to dynamics models for MPC and model-based RL.
+**Temporal / video JEPA.** Loops over spatial targets are a stepping stone; loops over **time** are closer to dynamics models for model predictive control (MPC) and model-based RL.
 
 **Co-design normalization and depth.** Sandwich RMSNorm should not be an afterthought; it should be part of the recurrent predictor recipe from day one. SwiGLU + RoPE (the `ouro_ready` predictor path in this codebase) is unexplored at full 300-epoch scale here.
 
@@ -314,7 +314,7 @@ But the project is not a failure. It produced:
 - A **visualization and demo stack** that makes predictor behavior inspectable loop by loop.
 - A **transfer result** where recurrence helps on aerial imagery when the in-domain metric says it should not.
 
-For **autonomous systems** (drones, harbor ISR, edge perception) the relevant constraints are parameter budget, label efficiency, and whether a model can **spend variable compute** on hard scenes. A 10M-param encoder with a recurrent latent predictor and a learned exit gate is a credible building block: pretrained on cheap unlabeled video, probed or fine-tuned with small labeled sets, deployed with interpretable attention and exit statistics.
+For **autonomous systems** (drones, harbor intelligence/surveillance/reconnaissance or ISR, and edge perception) the relevant constraints are parameter budget, label efficiency, and whether a model can **spend variable compute** on hard scenes. A 10M-param encoder with a recurrent latent predictor and a learned exit gate is a credible building block: pretrained on cheap unlabeled video, probed or fine-tuned with small labeled sets, deployed with interpretable attention and exit statistics.
 
 World models will not be won on CIFAR-10 alone. They will be won by architectures that **predict in latent space**, **refine under compute pressure**, and **transfer** when the deployment domain shifts. This repo is one controlled study of that bet, reported honestly, with the figures to prove what happened.
 
@@ -355,12 +355,12 @@ uv sync --extra demo && python app.py
 ### Citation
 
 ```bibtex
-@misc{jepa_cifar10_looped_2026,
+@misc{mangold2025loopedjepareport,
   title        = {I-JEPA with a Looped Predictor: Iterative Refinement,
                   Stability Ablations, and What I Learned},
-  author       = {jepa-ouro},
-  year         = {2026},
-  howpublished = {Technical report, jepa\_v3\_model repository}
+  author       = {John Mangold},
+  year         = {2025},
+  howpublished = {Technical report, looped-jepa repository}
 }
 ```
 

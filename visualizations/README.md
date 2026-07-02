@@ -59,7 +59,7 @@ python visualizations/generate_all_figures.py \
 2. Import and call it from `visualizations/generate_all_figures.py`.
 3. Use `visualizations.style.save_figure()` for consistent PNG/PDF export.
 
-## Per-loop analysis (Prompt 3)
+## Per-loop analysis
 
 Deeper per-sample loop diagnostics live in `visualizations/loop_analysis/`:
 
