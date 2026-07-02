@@ -1,6 +1,6 @@
 # I-JEPA CIFAR-10 v3: Training Report
 
-_Training report, 2025._
+_Training report,
 
 ## Recipe (v3)
 
