@@ -1,6 +1,6 @@
 ---
 title: "I-JEPA with a Looped Predictor: Iterative Refinement, Stability Ablations, and What I Learned"
-date: 2025-07-02
+date: 2026-07-02
 author: John Mangold
 tags: [I-JEPA, self-supervised learning, recurrent predictors, world models, CIFAR-10]
 ---
