@@ -95,7 +95,9 @@ Details: [`results/ablations/summary.md`](results/ablations/summary.md)
 ---
 
 ### Defense and Autonomy Applications
-The looped predictor’s adaptive compute design is well-suited for resource-constrained edge systems common in defense and autonomous platforms. The learned exit gate allows the model to allocate additional computation only when needed, which is valuable for deployment on drones and other unmanned systems. Strong transfer performance to an aerial maritime drone dataset further supports its potential for real-world autonomy applications.
+The looped predictor’s adaptive compute design is well-suited for resource-constrained edge systems common in defense and autonomous platforms. 
+
+The learned exit gate allows the model to allocate additional computation only when needed, which is valuable for deployment on drones and other unmanned systems. Strong transfer performance to an aerial maritime drone dataset further supports its potential for real-world autonomy applications.
 
 ---
 
