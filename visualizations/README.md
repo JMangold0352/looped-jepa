@@ -1,6 +1,6 @@
 # Visualization Suite
 
-Publication-ready figures comparing the **v3 baseline** and **looped predictor** on CIFAR-10.
+Publication ready figures comparing the V3 baseline
 
 ## Quick start
 
