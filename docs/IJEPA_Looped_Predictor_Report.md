@@ -372,4 +372,4 @@ uv sync --extra demo && python app.py
 
 ---
 
-*Report generated as part of the looped-jepa project. Code, checkpoints, figures, and interactive demo are in the repository root.*
+
