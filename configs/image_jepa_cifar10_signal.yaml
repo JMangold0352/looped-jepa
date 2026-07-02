@@ -1,0 +1,12 @@
+# Short "signal" run: inherits the strong base recipe but trains for 50 epochs
+# with frequent probing, to validate the recipe before committing to 200 epochs.
+_base_: image_jepa_cifar10.yaml
+
+train:
+  epochs: 50
+  warmup_epochs: 5
+  run_dir: runs/cifar10_signal
+  checkpoint_dir: checkpoints/signal
+
+eval:
+  probe_every_epochs: 10

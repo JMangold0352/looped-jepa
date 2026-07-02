@@ -1,0 +1,33 @@
+# v2 baseline: inherits image_jepa_cifar10.yaml. Three accuracy-impacting changes
+# relative to v1, applied because the tuned re-probe of the v1 checkpoint landed
+# at 81.14% (below the 82% decision threshold), indicating the gap to 85% is
+# larger than the two code bugs alone explain:
+#
+#   1. Target-index selection bias fix (src/jepa/masking.py): code change, not
+#      config; v1 deterministically kept top-left patches as targets.
+#   2. Dead tgt_proj removal (src/jepa/models/predictor.py): code change; v1
+#      wasted 49,280 params. Honest trainable count is now 9,816,960.
+#   3. EMA end cap 0.9999 (below): v1's ema_momentum_end=1.0 made the final
+#      EMA step a literal no-op and feat_std decayed 0.28 -> 0.18 over training.
+#   4. VICReg v2 anti-collapse regularizer (below): addresses the feat_std
+#      drift. Coefs are the tuned v2 values (10x smaller than v1 which regressed)
+#      with a 1000-step warmup so JEPA prediction leads.
+#
+# VICReg projector is sized [256, 256] (not [1024, 1024] like the standalone
+# vicreg config) so total trainable params stay under the 10M budget:
+#   9,816,960 (encoder+predictor) + 164,864 (projector) = 9,981,824 < 10M.
+_base_: image_jepa_cifar10.yaml
+
+regularizer:
+  enabled: true
+  type: vicreg
+  var_coeff: 0.1
+  cov_coeff: 0.002
+  warmup_steps: 1000
+  projector: [256, 256]
+
+train:
+  # Cap below 1.0 so the EMA keeps updating on the final steps (1.0 = no-op).
+  ema_momentum_end: 0.9999
+  run_dir: runs/cifar10_baseline_v2
+  checkpoint_dir: checkpoints/baseline_v2

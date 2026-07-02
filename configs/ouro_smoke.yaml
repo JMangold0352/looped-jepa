@@ -1,0 +1,40 @@
+seed: 42
+device: auto
+
+data:
+  img_size: 32
+  patch_size: 4
+  batch_size: 128
+  num_workers: 0
+  data_dir: data
+
+encoder:
+  embed_dim: 192
+  depth: 6
+  num_heads: 3
+
+predictor:
+  embed_dim: 96
+  depth: 4
+  num_heads: 3
+  looped: true
+  ouro: true
+  max_loops: 2
+  use_exit_gate: true
+
+masking:
+  fixed_context_patches: 32
+  fixed_target_patches: 16
+
+train:
+  epochs: 1
+  lr: 0.001
+  weight_decay: 0.05
+  warmup_steps: 100
+  grad_clip: 1.0
+  exit_entropy_beta: 0.01
+  run_dir: runs/ouro_smoke
+  checkpoint_dir: checkpoints/ouro_smoke
+
+eval:
+  probe_epochs: 5

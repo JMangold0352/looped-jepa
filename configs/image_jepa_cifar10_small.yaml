@@ -1,0 +1,19 @@
+# I-JEPA ViT-Small on CIFAR-10 (scale-up of the baseline recipe).
+# Inherits the baseline and only overrides the model size + output dirs, so the
+# only change vs baseline-v0 is capacity (encoder 192->384/d6->d12, predictor
+# 96->192/d4->d6). Regularizer stays off for a clean capacity A/B.
+_base_: image_jepa_cifar10.yaml
+
+encoder:
+  embed_dim: 384
+  depth: 12
+  num_heads: 6
+
+predictor:
+  embed_dim: 192
+  depth: 6
+  num_heads: 6
+
+train:
+  run_dir: runs/cifar10_small
+  checkpoint_dir: checkpoints/small

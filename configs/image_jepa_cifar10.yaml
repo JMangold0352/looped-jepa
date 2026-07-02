@@ -1,0 +1,81 @@
+seed: 42
+device: auto
+
+data:
+  img_size: 32
+  patch_size: 4
+  # batch_size 256 + workers keeps the MPS GPU fed; num_workers>0 is essential
+  # so CPU ColorJitter overlaps with compute (num_workers: 0 is ~4x slower).
+  batch_size: 256
+  num_workers: 8
+  data_dir: data
+
+# Encoder scaled to ~8.9M trainable params (still under the 10M budget once the
+# ~1M-param predictor is included). 384 / 6 heads = 64-dim heads.
+encoder:
+  embed_dim: 384
+  depth: 5
+  num_heads: 6
+  mlp_ratio: 4.0
+  dropout: 0.0
+  # Stochastic depth: linearly increasing drop-path across blocks regularizes
+  # the larger encoder over the long 200-epoch schedule.
+  drop_path: 0.1
+
+# Narrow non-looped predictor for the strong base model. 128 / 4 heads = 32-dim
+# heads. Looping is disabled here; flip `looped`/`ouro` to re-enable Part 2.
+predictor:
+  embed_dim: 128
+  depth: 4
+  num_heads: 4
+  mlp_ratio: 4.0
+  dropout: 0.0
+  looped: false
+  ouro: false
+  max_loops: 4
+  use_exit_gate: false
+
+masking:
+  num_target_blocks: 4
+  target_scale: [0.15, 0.2]
+  context_scale: [0.85, 1.0]
+  # Per-batch patch counts are sampled from these ranges so block sizes vary
+  # across batches (positions already vary per sample). Counts stay uniform
+  # within a batch so index tensors remain stackable.
+  context_patches_range: [24, 40]
+  target_patches_range: [10, 22]
+  fixed_context_patches: 32
+  fixed_target_patches: 16
+
+regularizer:
+  enabled: false
+  type: vicreg
+  var_coeff: 1.0
+  cov_coeff: 0.04
+  projector: [1024, 1024]
+
+train:
+  epochs: 200
+  # LR scaled for batch_size 256 (up from 1.5e-3 @ bs128).
+  lr: 0.002
+  weight_decay: 0.05
+  warmup_epochs: 15
+  grad_clip: 1.0
+  ema_momentum_start: 0.996
+  # Cap below 1.0 so the EMA keeps updating on the final steps. At 1.0 the last
+  # EMA step is a literal no-op (ema = ema*1.0 + p*0.0) and the teacher stops
+  # tracking the student, which caused feat_std to decay ~0.28 -> 0.18 over
+  # training in v1. 0.9999 keeps the teacher moving without over-weighting the
+  # noisy final-step student.
+  ema_momentum_end: 0.9999
+  exit_entropy_beta: 0.01
+  log_every: 50
+  use_wandb: false
+  run_dir: runs/cifar10_baseline
+  checkpoint_dir: checkpoints
+
+eval:
+  probe_lr: 0.001
+  probe_weight_decay: 0.0001
+  probe_epochs: 20
+  probe_every_epochs: 25

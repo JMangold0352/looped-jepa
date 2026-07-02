@@ -1,0 +1,36 @@
+# v5: the conservative path. Start from the working v3 baseline (77.21%) and
+# add ONE change: two-view I-JEPA (strong student + weak teacher view).
+#
+# v4 stacked five changes at once and collapsed (feat_std 0.31 -> 0.10 by
+# epoch 100, probe gap vs v3 widening at every checkpoint). Diagnosis was
+# impossible because the changes interacted. v5 isolates the single highest-
+# leverage change (two-view, which is the reference I-JEPA recipe) and keeps
+# everything else at v3 settings for a clean A/B.
+#
+# What changed vs v3 (exactly one thing):
+#   - two_view: true (strong student view + weak teacher view). The student
+#     context encoder consumes the strongly-augmented view; the EMA target
+#     encoder consumes a weakly-augmented view. This decouples the prediction
+#     target from the student's augmentation.
+#
+# What is deliberately KEPT at v3 settings (the v4 mistakes we're reverting):
+#   - Masking: ctx [24,40] / tgt [10,22] (v4's [18,28]/[18,28] was too
+#     aggressive at 32x32 and drove collapse).
+#   - EMA: linear 0.996 -> 0.9999 (v4's cosine -> 1.0 froze the teacher too
+#     fast while the student was already struggling).
+#   - Augmentation: RandAugment(n=2, m=9), no RandomErasing (v4's m=12 +
+#     RandomErasing p=0.25 = double occlusion on top of I-JEPA masking).
+#   - Drop-path: 0.1 (v4's 0.2 compounded the instability).
+#
+# Expected: 78-80% official top-1. Two-view alone is unlikely to jump straight
+# to 81% (that likely needs a second change in v6), but it would be real,
+# honest progress and a clean foundation.
+_base_: image_jepa_cifar10_v3.yaml
+
+# The single change: two-view I-JEPA.
+two_view: true
+
+# Override the v3 run/checkpoint dirs so we don't clobber v3 artifacts.
+train:
+  run_dir: runs/cifar10_baseline_v5
+  checkpoint_dir: checkpoints/baseline_v5

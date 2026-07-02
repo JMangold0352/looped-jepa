@@ -1,0 +1,13 @@
+# v2b: isolate the masking fix + EMA cap WITHOUT VICReg, to test whether the
+# masking fix alone is viable or whether VICReg was the regressing factor.
+# v2 (with VICReg) regressed badly: epoch-75 probe 64.08% vs v1's 72.87%.
+# This config keeps A.2 (masking) + A.3 (tgt_proj, code-level) + A.5a (EMA cap)
+# but drops A.5b (VICReg) so we can attribute the v2 regression cleanly.
+# If v2b tracks v1, the masking fix is fine and VICReg was the problem.
+# If v2b also regresses, the masking fix itself needs revisiting.
+_base_: image_jepa_cifar10.yaml
+
+train:
+  ema_momentum_end: 0.9999
+  run_dir: runs/cifar10_baseline_v2b
+  checkpoint_dir: checkpoints/baseline_v2b

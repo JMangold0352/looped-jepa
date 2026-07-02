@@ -1,0 +1,23 @@
+# Looped-predictor A/B against the strong non-looped baseline
+# (configs/image_jepa_cifar10.yaml). Inherits the same encoder, 200-epoch recipe,
+# augmentation, and masking. Only the predictor mechanism changes:
+#
+#   baseline: single-pass VisionTransformerPredictor
+#   this run: LoopedPredictor (4 recurrent steps, exit gate)
+#
+# Params stay matched (~9.87M) so probe gains are attributable to recurrence,
+# not extra capacity. Compare against checkpoints/latest.pt from the baseline.
+_base_: image_jepa_cifar10.yaml
+
+predictor:
+  looped: true
+  ouro: false
+  max_loops: 4
+  use_exit_gate: true
+
+train:
+  run_dir: runs/cifar10_looped
+  checkpoint_dir: checkpoints/looped
+
+eval:
+  probe_every_epochs: 25

@@ -1,0 +1,168 @@
+{
+  "suite": "loop_count",
+  "title": "Loop count (1 vs 2 vs 4)",
+  "base_config": "configs/ablations/base_v3_looped.yaml",
+  "variants": [
+    {
+      "name": "loops_1",
+      "description": "Single predictor pass (no recurrence, no exit gate).",
+      "config": {
+        "predictor": {
+          "embed_dim": 128,
+          "depth": 4,
+          "num_heads": 4,
+          "mlp_ratio": 4.0,
+          "dropout": 0.0,
+          "looped": true,
+          "ouro": false,
+          "max_loops": 1,
+          "use_exit_gate": false,
+          "norm": "layer",
+          "sandwich_norm": false
+        },
+        "train": {
+          "epochs": 300,
+          "exit_entropy_beta": 0.01,
+          "run_dir": "runs/ablations/loop_count/loops_1",
+          "checkpoint_dir": "checkpoints/ablations/loop_count/loops_1"
+        }
+      },
+      "train_time_sec": 2938.1611687080003,
+      "checkpoint": "checkpoints/ablations/loop_count/loops_1/latest.pt",
+      "top1_accuracy": 77.24,
+      "best_lr": 0.003,
+      "feat_std": 0.16092683374881744,
+      "results_by_lr": {
+        "0.0003": 76.18,
+        "0.001": 76.98,
+        "0.003": 77.24
+      },
+      "loop_usage": {
+        "max_loops": 1,
+        "use_exit_gate": false,
+        "mean_loops_used": 1.0,
+        "std_loops_used": 0.0,
+        "exit_prob_per_loop": [],
+        "loops_used_histogram": {
+          "1": 10000
+        },
+        "num_samples": 10000
+      },
+      "training_stability": {
+        "final_epoch_loss": 0.021137285595520947,
+        "tail_loss_mean": 0.0214854850788147,
+        "tail_loss_std": 0.00023676901764702052,
+        "min_feat_std": 0.1609213501214981,
+        "final_feat_std_probe": 0.1609213501214981
+      }
+    },
+    {
+      "name": "loops_2",
+      "description": "Two recurrence steps with exit gate (current default).",
+      "config": {
+        "predictor": {
+          "embed_dim": 128,
+          "depth": 4,
+          "num_heads": 4,
+          "mlp_ratio": 4.0,
+          "dropout": 0.0,
+          "looped": true,
+          "ouro": false,
+          "max_loops": 2,
+          "use_exit_gate": true,
+          "norm": "layer",
+          "sandwich_norm": false
+        },
+        "train": {
+          "epochs": 300,
+          "exit_entropy_beta": 0.01,
+          "run_dir": "runs/ablations/loop_count/loops_2",
+          "checkpoint_dir": "checkpoints/ablations/loop_count/loops_2"
+        }
+      },
+      "train_time_sec": null,
+      "checkpoint": "checkpoints/baseline_v3_looped/latest.pt",
+      "top1_accuracy": 75.04,
+      "best_lr": 0.003,
+      "feat_std": 0.12764529883861542,
+      "results_by_lr": {
+        "0.0003": 73.38,
+        "0.001": 74.69,
+        "0.003": 75.04
+      },
+      "loop_usage": {
+        "max_loops": 2,
+        "use_exit_gate": true,
+        "mean_loops_used": 1.5,
+        "std_loops_used": 0.0,
+        "exit_prob_per_loop": [
+          0.5,
+          0.5
+        ],
+        "loops_used_histogram": {
+          "2": 10000
+        },
+        "num_samples": 10000
+      },
+      "training_stability": {}
+    },
+    {
+      "name": "loops_4",
+      "description": "Four recurrence steps with exit gate.",
+      "config": {
+        "predictor": {
+          "embed_dim": 128,
+          "depth": 4,
+          "num_heads": 4,
+          "mlp_ratio": 4.0,
+          "dropout": 0.0,
+          "looped": true,
+          "ouro": false,
+          "max_loops": 4,
+          "use_exit_gate": true,
+          "norm": "layer",
+          "sandwich_norm": false
+        },
+        "train": {
+          "epochs": 300,
+          "exit_entropy_beta": 0.01,
+          "run_dir": "runs/ablations/loop_count/loops_4",
+          "checkpoint_dir": "checkpoints/ablations/loop_count/loops_4"
+        }
+      },
+      "train_time_sec": 21675.293647458995,
+      "checkpoint": "checkpoints/ablations/loop_count/loops_4/latest.pt",
+      "top1_accuracy": 75.49,
+      "best_lr": 0.003,
+      "feat_std": 0.10494694858789444,
+      "results_by_lr": {
+        "0.0003": 74.08,
+        "0.001": 75.15,
+        "0.003": 75.49
+      },
+      "loop_usage": {
+        "max_loops": 4,
+        "use_exit_gate": true,
+        "mean_loops_used": 1.875,
+        "std_loops_used": 0.0,
+        "exit_prob_per_loop": [
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "loops_used_histogram": {
+          "2": 10000
+        },
+        "num_samples": 10000
+      },
+      "training_stability": {
+        "final_epoch_loss": -0.002371588930821954,
+        "tail_loss_mean": -0.002284839487180878,
+        "tail_loss_std": 6.281898822635412e-05,
+        "min_feat_std": 0.10494982451200485,
+        "final_feat_std_probe": 0.10494982451200485
+      }
+    }
+  ]
+}

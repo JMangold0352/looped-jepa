@@ -1,0 +1,52 @@
+seed: 42
+device: auto
+
+data:
+  img_size: 32
+  patch_size: 4
+  batch_size: 64
+  num_workers: 0
+  data_dir: data
+
+encoder:
+  embed_dim: 192
+  depth: 6
+  num_heads: 3
+  mlp_ratio: 4.0
+  dropout: 0.0
+
+predictor:
+  embed_dim: 96
+  depth: 4
+  num_heads: 3
+  mlp_ratio: 4.0
+  dropout: 0.0
+  looped: true
+  ouro: true
+  max_loops: 4
+  use_exit_gate: true
+
+masking:
+  num_target_blocks: 4
+  target_scale: [0.15, 0.2]
+  context_scale: [0.85, 1.0]
+  fixed_context_patches: 32
+  fixed_target_patches: 16
+
+train:
+  epochs: 2
+  lr: 0.001
+  weight_decay: 0.05
+  warmup_steps: 100
+  grad_clip: 1.0
+  ema_momentum_start: 0.996
+  ema_momentum_end: 1.0
+  exit_entropy_beta: 0.01
+  log_every: 10
+  use_wandb: false
+  run_dir: runs/cifar10_ouro_looped
+  checkpoint_dir: checkpoints/ouro
+
+eval:
+  probe_lr: 0.001
+  probe_epochs: 10

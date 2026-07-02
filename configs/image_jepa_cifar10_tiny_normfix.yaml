@@ -1,0 +1,11 @@
+# I-JEPA ViT-Tiny CIFAR-10, identical recipe to baseline-v0 but with the
+# independent norm1/norm2 fix in the transformer Block (the original baseline
+# was trained with a single shared pre-norm). Purpose: isolate whether the norm
+# fix alone moved the probe, so the ViT-Small regression (-2.2 pts) can be
+# attributed to capacity vs the norm change. Only output dirs differ from
+# baseline so baseline-v0 artifacts are preserved.
+_base_: image_jepa_cifar10.yaml
+
+train:
+  run_dir: runs/cifar10_tiny_normfix
+  checkpoint_dir: checkpoints/tiny_normfix

@@ -1,0 +1,14 @@
+# 1-epoch smoke of the full v2 recipe (encoder 384/d5/h6, VICReg [256,256],
+# EMA cap 0.9999, masking fix) to validate the pipeline on MPS before the
+# 200-epoch run. Inherits v2 and only overrides epochs/probe cadence/output dirs.
+_base_: image_jepa_cifar10_v2.yaml
+
+train:
+  epochs: 1
+  warmup_steps: 10
+  run_dir: runs/v2_smoke
+  checkpoint_dir: checkpoints/v2_smoke
+
+eval:
+  probe_epochs: 3
+  probe_every_epochs: 1

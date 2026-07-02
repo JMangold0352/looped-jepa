@@ -1,0 +1,20 @@
+_base_: image_jepa_cifar10_v4.yaml
+
+# 2-epoch smoke: confirm the two-view + cosine EMA + harder masking path
+# trains end-to-end and produces a non-trivial loss decrease. Inherits all
+# v4 settings; only overrides epochs and disables the probe sweep.
+two_view: true
+
+data:
+  num_workers: 4
+
+train:
+  epochs: 2
+  warmup_epochs: 1
+  run_dir: runs/cifar10_v4_smoke
+  checkpoint_dir: checkpoints/v4_smoke
+  use_wandb: false
+
+eval:
+  probe_every_epochs: 0
+  tuned_probe_epochs: 0

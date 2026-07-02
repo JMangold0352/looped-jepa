@@ -1,0 +1,49 @@
+seed: 42
+device: auto
+
+data:
+  img_size: 32
+  patch_size: 4
+  batch_size: 128
+  num_workers: 0
+  data_dir: data
+
+encoder:
+  embed_dim: 192
+  depth: 6
+  num_heads: 3
+  mlp_ratio: 4.0
+  dropout: 0.0
+
+predictor:
+  embed_dim: 96
+  depth: 4
+  num_heads: 3
+  mlp_ratio: 4.0
+  dropout: 0.0
+  looped: false
+  ouro: false
+
+masking:
+  num_target_blocks: 4
+  target_scale: [0.15, 0.2]
+  context_scale: [0.85, 1.0]
+  fixed_context_patches: 32
+  fixed_target_patches: 16
+
+train:
+  epochs: 5
+  lr: 0.001
+  weight_decay: 0.05
+  warmup_steps: 200
+  grad_clip: 1.0
+  ema_momentum_start: 0.996
+  ema_momentum_end: 1.0
+  log_every: 100
+  use_wandb: false
+  run_dir: runs/verify
+  checkpoint_dir: checkpoints/verify
+
+eval:
+  probe_lr: 0.001
+  probe_epochs: 10

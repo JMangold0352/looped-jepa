@@ -1,0 +1,119 @@
+{
+  "suite": "sandwich_norm",
+  "title": "Predictor normalization (LayerNorm vs sandwich RMSNorm)",
+  "base_config": "configs/ablations/base_v3_looped.yaml",
+  "variants": [
+    {
+      "name": "layernorm",
+      "description": "Standard LayerNorm before attention and FFN.",
+      "config": {
+        "predictor": {
+          "embed_dim": 128,
+          "depth": 4,
+          "num_heads": 4,
+          "mlp_ratio": 4.0,
+          "dropout": 0.0,
+          "looped": true,
+          "ouro": false,
+          "max_loops": 2,
+          "use_exit_gate": true,
+          "norm": "layer",
+          "sandwich_norm": false
+        },
+        "train": {
+          "epochs": 300,
+          "exit_entropy_beta": 0.01,
+          "run_dir": "runs/ablations/sandwich_norm/layernorm",
+          "checkpoint_dir": "checkpoints/ablations/sandwich_norm/layernorm"
+        }
+      },
+      "train_time_sec": 18764.090138166008,
+      "checkpoint": "checkpoints/ablations/sandwich_norm/layernorm/latest.pt",
+      "top1_accuracy": 75.36,
+      "best_lr": 0.003,
+      "feat_std": 0.12748439610004425,
+      "results_by_lr": {
+        "0.0003": 73.59,
+        "0.001": 74.59,
+        "0.003": 75.36
+      },
+      "loop_usage": {
+        "max_loops": 2,
+        "use_exit_gate": true,
+        "mean_loops_used": 1.5,
+        "std_loops_used": 0.0,
+        "exit_prob_per_loop": [
+          0.5,
+          0.5
+        ],
+        "loops_used_histogram": {
+          "2": 10000
+        },
+        "num_samples": 10000
+      },
+      "training_stability": {
+        "final_epoch_loss": -0.00022984174056312978,
+        "tail_loss_mean": -9.972451369349773e-05,
+        "tail_loss_std": 9.779985703062266e-05,
+        "min_feat_std": 0.12749157845973969,
+        "final_feat_std_probe": 0.12749157845973969
+      }
+    },
+    {
+      "name": "sandwich_rms",
+      "description": "RMSNorm before and after each sub-layer (sandwich layout).",
+      "config": {
+        "predictor": {
+          "embed_dim": 128,
+          "depth": 4,
+          "num_heads": 4,
+          "mlp_ratio": 4.0,
+          "dropout": 0.0,
+          "looped": true,
+          "ouro": false,
+          "max_loops": 2,
+          "use_exit_gate": true,
+          "norm": "rms",
+          "sandwich_norm": true
+        },
+        "train": {
+          "epochs": 300,
+          "exit_entropy_beta": 0.01,
+          "run_dir": "runs/ablations/sandwich_norm/sandwich_rms",
+          "checkpoint_dir": "checkpoints/ablations/sandwich_norm/sandwich_rms"
+        }
+      },
+      "train_time_sec": 20421.555883374996,
+      "checkpoint": "checkpoints/ablations/sandwich_norm/sandwich_rms/latest.pt",
+      "top1_accuracy": 78.28,
+      "best_lr": 0.003,
+      "feat_std": 0.043201521039009094,
+      "results_by_lr": {
+        "0.0003": 77.06,
+        "0.001": 77.96,
+        "0.003": 78.28
+      },
+      "loop_usage": {
+        "max_loops": 2,
+        "use_exit_gate": true,
+        "mean_loops_used": 1.5,
+        "std_loops_used": 0.0,
+        "exit_prob_per_loop": [
+          0.5,
+          0.5
+        ],
+        "loops_used_histogram": {
+          "2": 10000
+        },
+        "num_samples": 10000
+      },
+      "training_stability": {
+        "final_epoch_loss": -0.005914732056837051,
+        "tail_loss_mean": -0.005900045275401611,
+        "tail_loss_std": 1.101065117836697e-05,
+        "min_feat_std": 0.04320400953292847,
+        "final_feat_std_probe": 0.04320400953292847
+      }
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "dataset": {
+    "num_classes": 10,
+    "class_names": [
+      "AnnualCrop",
+      "Forest",
+      "HerbaceousVegetation",
+      "Highway",
+      "Industrial",
+      "Pasture",
+      "PermanentCrop",
+      "Residential",
+      "River",
+      "SeaLake"
+    ],
+    "img_size": 32,
+    "dataset": "eurosat",
+    "name": "EuroSAT RGB (satellite aerial proxy \u2014 use Roboflow maritime with --download when API key set)",
+    "train_size": 1500,
+    "val_size": 400
+  },
+  "results": [
+    {
+      "top1_accuracy": 72.75,
+      "best_lr": 0.003,
+      "results_by_lr": {
+        "0.0003": 57.75,
+        "0.001": 68.25,
+        "0.003": 72.75
+      },
+      "feat_std": 0.13886724412441254,
+      "macro_f1": 75.65697534551117,
+      "method": "frozen_v3_baseline",
+      "checkpoint": "checkpoints/baseline_v3/latest.pt",
+      "notes": "Tuned linear probe, CIFAR-10 pretrained encoder"
+    },
+    {
+      "top1_accuracy": 76.75,
+      "best_lr": 0.003,
+      "results_by_lr": {
+        "0.0003": 58.5,
+        "0.001": 70.75,
+        "0.003": 76.75
+      },
+      "feat_std": 0.10230696946382523,
+      "macro_f1": 75.42566585660441,
+      "method": "frozen_v3_looped",
+      "checkpoint": "checkpoints/baseline_v3_looped/latest.pt",
+      "notes": "Tuned linear probe, looped CIFAR-10 encoder"
+    },
+    {
+      "method": "scratch_resnet18",
+      "top1_accuracy": 77.5,
+      "macro_f1": 67.06208547390702,
+      "epochs": 25,
+      "notes": "ResNet18 trained from scratch on transfer data"
+    }
+  ],
+  "elapsed_sec": 34.75965213775635,
+  "configs": {
+    "baseline": "configs/image_jepa_cifar10_v3.yaml",
+    "looped": "configs/image_jepa_cifar10_v3_looped.yaml"
+  },
+  "checkpoints": {
+    "baseline": "checkpoints/baseline_v3/latest.pt",
+    "looped": "checkpoints/baseline_v3_looped/latest.pt"
+  }
+}

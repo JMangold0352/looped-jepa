@@ -1,0 +1,120 @@
+{
+  "suite": "entropy",
+  "title": "Exit-gate entropy regularization (on vs off)",
+  "base_config": "configs/ablations/base_v3_looped.yaml",
+  "variants": [
+    {
+      "name": "entropy_on",
+      "description": "Exit gate + entropy penalty (beta=0.01).",
+      "config": {
+        "predictor": {
+          "embed_dim": 128,
+          "depth": 4,
+          "num_heads": 4,
+          "mlp_ratio": 4.0,
+          "dropout": 0.0,
+          "looped": true,
+          "ouro": false,
+          "max_loops": 2,
+          "use_exit_gate": true,
+          "norm": "layer",
+          "sandwich_norm": false
+        },
+        "train": {
+          "epochs": 300,
+          "exit_entropy_beta": 0.01,
+          "run_dir": "runs/ablations/entropy/entropy_on",
+          "checkpoint_dir": "checkpoints/ablations/entropy/entropy_on"
+        }
+      },
+      "train_time_sec": 18756.067333792016,
+      "checkpoint": "checkpoints/ablations/entropy/entropy_on/latest.pt",
+      "top1_accuracy": 75.36,
+      "best_lr": 0.003,
+      "feat_std": 0.12748439610004425,
+      "results_by_lr": {
+        "0.0003": 73.59,
+        "0.001": 74.59,
+        "0.003": 75.36
+      },
+      "loop_usage": {
+        "max_loops": 2,
+        "use_exit_gate": true,
+        "mean_loops_used": 1.5,
+        "std_loops_used": 0.0,
+        "exit_prob_per_loop": [
+          0.5,
+          0.5
+        ],
+        "loops_used_histogram": {
+          "2": 10000
+        },
+        "num_samples": 10000
+      },
+      "training_stability": {
+        "final_epoch_loss": -0.00022984174056312978,
+        "tail_loss_mean": -9.972451369349773e-05,
+        "tail_loss_std": 9.779985703062266e-05,
+        "min_feat_std": 0.12749157845973969,
+        "final_feat_std_probe": 0.12749157845973969
+      }
+    },
+    {
+      "name": "entropy_off",
+      "description": "Exit gate without entropy penalty (beta=0).",
+      "config": {
+        "predictor": {
+          "embed_dim": 128,
+          "depth": 4,
+          "num_heads": 4,
+          "mlp_ratio": 4.0,
+          "dropout": 0.0,
+          "looped": true,
+          "ouro": false,
+          "max_loops": 2,
+          "use_exit_gate": true,
+          "norm": "layer",
+          "sandwich_norm": false
+        },
+        "train": {
+          "epochs": 300,
+          "exit_entropy_beta": 0.0,
+          "run_dir": "runs/ablations/entropy/entropy_off",
+          "checkpoint_dir": "checkpoints/ablations/entropy/entropy_off"
+        }
+      },
+      "train_time_sec": 18707.671168667002,
+      "checkpoint": "checkpoints/ablations/entropy/entropy_off/latest.pt",
+      "top1_accuracy": 76.0,
+      "best_lr": 0.003,
+      "feat_std": 0.12697634100914001,
+      "results_by_lr": {
+        "0.0003": 74.09,
+        "0.001": 75.47,
+        "0.003": 76.0
+      },
+      "loop_usage": {
+        "max_loops": 2,
+        "use_exit_gate": true,
+        "mean_loops_used": 1.546712875366211,
+        "std_loops_used": 0.009839153848588467,
+        "exit_prob_per_loop": [
+          0.4532870948314667,
+          0.4543052613735199
+        ],
+        "loops_used_histogram": {
+          "2": 9998,
+          "1": 2
+        },
+        "num_samples": 10000
+      },
+      "training_stability": {
+        "final_epoch_loss": 0.006959796641977169,
+        "tail_loss_mean": 0.00710030217669331,
+        "tail_loss_std": 0.00010595125786494464,
+        "min_feat_std": 0.1269836574792862,
+        "final_feat_std_probe": 0.1269836574792862
+      }
+    }
+  ]
+}

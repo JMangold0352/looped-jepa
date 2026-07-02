@@ -1,0 +1,13 @@
+{
+  "num_samples": 512,
+  "mean_loops_used": 1.5,
+  "std_loops_used": 0.0,
+  "loops_used_histogram": {
+    "2": 512
+  },
+  "exit_prob_per_loop": [
+    0.5,
+    0.5
+  ],
+  "mean_cosine_gain": 0.21358144283294678
+}
