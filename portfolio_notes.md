@@ -69,17 +69,4 @@ critical path.
 This is **research code**, not a deployed product, but it reads like work from a lab that
 ships artifacts, not just slides.
 
----
 
-## Best artifacts to show in an interview
-
-1. **[Technical report](docs/IJEPA_Looped_Predictor_Report.md)**: main narrative; send this link first
-2. **[Gradio demo](app.py)**: live loop-by-loop attention; memorable in a screen share
-3. **[Ablation figure](visualizations/figures/05_ablation_summary.png)**: one image tells the normalization story
-4. **[Results index](results/README.md)**: shows organized experimental output
-5. **[Model cards](model_cards/)**: professional documentation standard
-
-**One-liner for a defense/autonomy role:**  
-*"I studied whether recurrent latent predictors help compact JEPA encoders: honest negative
-in-domain result, but +4 pp aerial transfer and a clear normalization ablation, with full
-reproducibility and an interactive demo."*
