@@ -83,22 +83,3 @@ ships artifacts, not just slides.
 *"I studied whether recurrent latent predictors help compact JEPA encoders: honest negative
 in-domain result, but +4 pp aerial transfer and a clear normalization ablation, with full
 reproducibility and an interactive demo."*
-
----
-
-## Suggested README / GitHub pin order
-
-1. Hero GIF or static from Gradio demo (optional, not yet added)
-2. Link to technical report
-3. Results table (baseline vs looped vs best ablation vs transfer)
-4. Figure gallery
-5. `python app.py` quickstart
-
----
-
-## What I would do next (shows forward thinking)
-
-- Scale to 128×128 unlabeled drone video; re-test adaptive exit gate on harder inputs
-- Action-conditioned JEPA for embodied planning horizons
-- Deploy Gradio demo to Hugging Face Spaces with LFS checkpoints
-- Fine-tune sandwich-RMSNorm checkpoint on Roboflow maritime with partial labels
