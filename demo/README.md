@@ -1,8 +1,6 @@
 # Interactive Demo
 
-A clean, modern Gradio app that compares the **v3 baseline** and the **v3 looped
-predictor** side by side on any uploaded image, and shows how the looped predictor
-refines its prediction loop by loop.
+An interactive Gradio demo that compares the v3 baseline and the v3 looped predictor side by side on any uploaded image, and shows how the looped predictor refines its prediction loop by loop
 
 ![demo](../visualizations/figures/01_mask_reconstruction.png)
 
