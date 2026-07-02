@@ -1,6 +1,6 @@
 # Reproduction Guide: I-JEPA CIFAR-10 v3
 
-2026-06-28 20:04
+_Reproduction guide · updated for the fresh-clone workflow._
 
 This guide walks through reproducing the v3 result (77.23% tuned linear probe) from a
 **fresh clone**. It assumes macOS with Apple Silicon (MPS) or a CUDA GPU. CPU works but

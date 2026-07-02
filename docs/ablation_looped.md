@@ -1,6 +1,6 @@
 # Looped Predictor Ablation (Smoke Run)
 
-Date: 2026-06-29  
+Date: 2025-06-29  
 Config: `configs/ouro_smoke.yaml` (1 epoch, smaller encoder than v3)
 
 ## Results

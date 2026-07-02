@@ -16,7 +16,6 @@
 [Results](#key-results) ·
 [Gallery](#visual-gallery) ·
 [Report](docs/IJEPA_Looped_Predictor_Report.md) ·
-[Portfolio](portfolio_notes.md) ·
 [Demo](#gradio-demo) ·
 [Model cards](model_cards/) ·
 [Reproduce](REPRODUCTION.md)
@@ -31,17 +30,22 @@
 
 > *What if the predictor that fills in missing latent structure is **recurrent**, refining its guess over multiple shared-weight steps, with a learned exit gate that spends compute only where needed?*
 
-This project releases two trained models (baseline + looped), a **seven-variant ablation suite**, publication-quality visualizations (including per-loop attention evolution), aerial transfer experiments, and an interactive Gradio demo, all under **~9.9M trainable parameters**, small enough for edge deployment and fast iteration.
+This project releases everything needed to reproduce that study: two trained models (baseline and looped), a **seven-variant ablation suite**, publication-quality visualizations (including how attention evolves across loops), aerial transfer experiments, and an interactive Gradio demo. The entire stack stays under **~9.9M trainable parameters**, small enough for edge deployment and fast iteration.
 
 ---
 
 ## Motivation & why a looped predictor?
 
-JEPA-style training treats perception as **predictive coding in representation space**: the encoder sees a partial view; the predictor infers what the full scene *means* in latent space, supervised by an EMA teacher. That is already a primitive world model, but the standard predictor is a **single feed-forward pass**.
+JEPA-style training treats perception as **predictive coding in representation space**: the encoder sees a partial view, and the predictor infers what the full scene *means* in latent space, supervised by an exponential moving average (EMA) teacher. That is already a primitive world model, but the standard predictor runs as a **single feed-forward pass**.
 
-**Recurrent latent dynamics** mirror how agents iteratively refine beliefs: early loops capture coarse structure; later loops resolve ambiguity. A **weight-shared** stack adds depth at **zero extra parameters**, only compute scales. A learned **exit gate** implements adaptive depth: easy inputs exit early, hard inputs recurse.
+**Recurrent latent dynamics** mirror how agents refine beliefs step by step: early loops capture coarse structure, and later loops resolve ambiguity. Because the loop reuses one **weight-shared** block stack, this added depth costs **zero extra parameters**; only the amount of computation grows. A learned **exit gate** then makes that depth adaptive, so easy inputs stop early while hard inputs keep refining.
 
-This repo isolates the predictor change while holding the v3 encoder recipe fixed, so comparisons are honest. Along the way I document stability lessons that matter at small scale:
+Two terms recur throughout this README:
+
+- **Exit gate** — a small learned head that, after each loop, estimates the probability that refinement can stop. It turns a fixed-depth predictor into an adaptive-depth one.
+- **Sandwich RMSNorm** — RMS normalization applied both *before and after* each attention and feed-forward sub-layer in the predictor (rather than only once, before each sub-layer). This paired placement stabilizes the shared-weight loop and, as the ablations show, is what makes recurrence actually pay off.
+
+This repository isolates the predictor change while holding the v3 encoder recipe fixed, so the comparisons stay honest. Along the way I document stability lessons that matter at small scale:
 
 | Design choice | Rationale |
 | --- | --- |
@@ -49,7 +53,7 @@ This repo isolates the predictor change while holding the v3 encoder recipe fixe
 | EMA momentum cap at 0.9999 | At 1.0 the final EMA step is a no-op; `feat_std` decayed in v1 |
 | Exit-gate entropy regularization | Prevents degenerate always-early / always-late exits |
 | Sandwich RMSNorm in the predictor | Strongest ablation (+1.05 pp over baseline); normalization > raw loop count |
-| RandAugment + mild RRC at 32×32 | Strong aug without destroying 4×4 patch structure |
+| RandAugment + mild random-resized crop (RRC) at 32×32 | Strong augmentation without destroying 4×4 patch structure |
 
 The default looped checkpoint **does not beat** the baseline on in-domain CIFAR-10 probing (−2.1 pp). That negative result is informative: recurrence alone is insufficient without the right predictor normalization, and the **transfer** and **ablation** stories are where the science lives.
 
@@ -57,7 +61,7 @@ The default looped checkpoint **does not beat** the baseline on in-domain CIFAR-
 
 ## Key results
 
-Official metric: **tuned linear probe** on frozen features (cosine LR, sweep `{3e-4, 1e-3, 3e-3}`, feature standardization, 300-epoch pretraining).
+Official metric: **tuned linear probe** on frozen features (cosine learning-rate schedule, sweep over `{3e-4, 1e-3, 3e-3}`, feature standardization, 300-epoch pretraining). Accuracy differences are reported in percentage points (pp).
 
 ### Released models
 
@@ -79,14 +83,14 @@ Official metric: **tuned linear probe** on frozen features (cosine LR, sweep `{3
 | layernorm | 75.36% | 0.1275 | 1.50 |
 | **sandwich_rms** | **78.28%** | 0.0432 | 1.50 |
 
-**Takeaways (honest):**
+**Takeaways:**
 
 - Default looped predictor (LayerNorm, 2 loops): **−2.1 pp** in-domain; recurrence without the right norm hurts `feat_std` and probe accuracy.
 - **Normalization dominates loop count:** sandwich-RMSNorm beats both baseline and all other ablations.
 - **Transfer flips the story:** frozen looped encoder **+4.0 pp** over frozen baseline on aerial imagery (see below).
 - Per-loop analysis: mean cosine gain loop 1 → final ≈ **+0.21**; exit gate ≈ **50% / 50%** at loops 1 and 2 (expected depth **1.5**).
 
-Details: [`results/ablations/summary.md`](results/ablations/summary.md) · [`runs/looped_v3_comparison.json`](runs/looped_v3_comparison.json)
+Details: [`results/ablations/summary.md`](results/ablations/summary.md)
 
 ---
 
@@ -249,11 +253,11 @@ python visualizations/generate_all_figures.py
 # Smoke test (~2 min)
 python visualizations/generate_all_figures.py --fast
 
-# Per-loop analysis only (Prompt 3 figures)
+# Per-loop analysis figures only
 python visualizations/generate_all_figures.py --loop-analysis-only
 ```
 
-Full reproduce-from-scratch guide: [**REPRODUCTION.md**](REPRODUCTION.md) · Experiment narrative: [**REPORT.md**](REPORT.md)
+Full reproduce-from-scratch guide: [**REPRODUCTION.md**](REPRODUCTION.md) · Experiment write-up: [**REPORT.md**](REPORT.md)
 
 ---
 
@@ -287,7 +291,7 @@ Frozen-encoder transfer (backbone not fine-tuned; linear probe on top). Primary 
 ```bash
 python scripts/transfer_roboflow.py --source eurosat
 
-# Roboflow maritime (recommended for defense/autonomy narrative)
+# Roboflow Aerial Maritime Drone dataset (requires an API key)
 export ROBOFLOW_API_KEY="..."
 python scripts/transfer_roboflow.py --download \
   --workspace demm --project aerial-maritime-drone-dataset --version 1 \
@@ -317,16 +321,18 @@ Version hubs: [`v3_baseline/`](v3_baseline/) · [`v3_looped/`](v3_looped/)
 
 ## Relevance to defense, autonomy & edge AI
 
-| Theme | How this repo connects |
-| --- | --- |
-| **Drone / aerial world models** | Self-supervised encoders pretrained on abundant unlabeled imagery; looped variant transfers better to aerial domains (+4 pp) |
-| **Planning & latent dynamics** | JEPA predicts future *structure* in latent space, a stepping stone toward predictive world models for model-based RL |
-| **Adaptive compute** | Exit gate = per-sample depth; useful when latency budgets vary (easy terrain vs cluttered harbor) |
-| **Interpretability** | Per-loop attention maps, exit distributions, and mask-reconstruction panels make predictor behavior inspectable |
-| **Edge deployment** | **<10M params**, 32×32-native stack suitable for embedded inference after mission-specific adaptation |
-| **Label efficiency** | Frozen SSL backbone + small linear head reduces annotation burden for mission-specific classes |
+The core constraints in this project (compact models, label efficiency, and interpretable inference) align directly with the requirements of autonomous and defense perception systems.
 
-This is research code, not a deployed system, but the artifact chain (train → ablate → visualize → transfer → demo) is designed to be legible to autonomy and defense R&D audiences.
+| Theme | Connection |
+| --- | --- |
+| **Aerial & maritime world models** | Encoders pretrained on abundant unlabeled imagery transfer to aerial domains; the looped variant improves transfer by +4 pp |
+| **Planning & latent dynamics** | Predicting scene *structure* in latent space is a building block for model-based reinforcement learning and predictive world models |
+| **Adaptive compute** | The exit gate allocates depth per sample, spending more computation on difficult inputs where latency budgets allow |
+| **Interpretability** | Per-loop attention maps, exit-depth distributions, and mask-reconstruction panels make predictor behavior directly inspectable |
+| **Edge deployment** | A sub-10M-parameter, 32×32-native stack is compatible with embedded inference after mission-specific adaptation |
+| **Label efficiency** | A frozen self-supervised backbone with a small linear head reduces annotation requirements for new classes |
+
+This is research code rather than a deployed system, but the end-to-end workflow (train → ablate → visualize → transfer → demo) is intended to be readable and straightforward to extend for autonomy and defense research.
 
 ---
 
@@ -352,12 +358,12 @@ looped-jepa/
 If you use this codebase or checkpoints in your work, please cite:
 
 ```bibtex
-@misc{jepa_cifar10_v3_looped_2026,
+@misc{mangold2025loopedjepa,
   title        = {Recurrent Latent Prediction with I-JEPA on CIFAR-10},
-  author       = {jepa-ouro},
-  year         = {2026},
+  author       = {John Mangold},
+  year         = {2025},
   howpublished = {\url{https://github.com/JMangold0352/looped-jepa}},
-  note         = {Self-supervised ViT encoders with looped predictor under 10M parameters}
+  note         = {Self-supervised ViT encoders with a looped predictor under 10M parameters}
 }
 ```
 
@@ -374,17 +380,14 @@ If you use this codebase or checkpoints in your work, please cite:
 
 | Doc | Contents |
 | --- | --- |
-| [**IJEPA Looped Predictor Report**](docs/IJEPA_Looped_Predictor_Report.md) | **Portfolio artifact**: full technical blog / extended report |
-| [**portfolio_notes.md**](portfolio_notes.md) | Interview talking points; defense/autonomy relevance |
+| [**IJEPA Looped Predictor Report**](docs/IJEPA_Looped_Predictor_Report.md) | Full technical report and extended write-up |
 | [**results/README.md**](results/README.md) | Results, figures, and report links |
 | [**CONTRIBUTING.md**](CONTRIBUTING.md) | How to extend the codebase |
-| [**github_review/README.md**](github_review/README.md) | Pre-push publish checklist |
 | [**scripts/README.md**](scripts/README.md) | Every CLI entry point |
 | [REPRODUCTION.md](REPRODUCTION.md) | Reproduce training and evaluation from scratch |
-| [REPORT.md](REPORT.md) | v3 training report; v4/v5 failed experiments |
+| [REPORT.md](REPORT.md) | v3 training report and v4/v5 negative results |
 | [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md) | Synthesis report |
 | [visualizations/README.md](visualizations/README.md) | Figure pipeline |
-| [results/README.md](results/README.md) | Results index |
 
 ---
 

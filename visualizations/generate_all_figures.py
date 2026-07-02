@@ -96,7 +96,7 @@ def main() -> None:
     parser.add_argument(
         "--loop-analysis-only",
         action="store_true",
-        help="Only run per-loop deep-dive figures (Prompt 3)",
+        help="Only run per-loop deep-dive figures",
     )
     parser.add_argument("--skip-loop-analysis", action="store_true")
     args = parser.parse_args()
@@ -172,7 +172,7 @@ def main() -> None:
     loop_analysis_dir = Path(args.loop_analysis_dir)
 
     if args.loop_analysis_only:
-        _log("[loop] Per-loop deep dive (Prompt 3)...")
+        _log("[loop] Per-loop deep dive...")
         records, record_images = collect_loop_sample_records(
             looped_model, val_loader, collator, device, max_batches=loop_analysis_batches
         )

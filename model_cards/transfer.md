@@ -29,7 +29,7 @@ directly once a `ROBOFLOW_API_KEY` is set (see below).
 
 - The **looped encoder transfers ~4 pp better** than the baseline; recurrence helps
   out-of-domain generalization even when it trails on in-domain CIFAR-10.
-- A frozen 10M-param SSL encoder is within ~1 pp of a from-scratch ResNet18 while training
+- A frozen 10M-parameter self-supervised (SSL) encoder is within ~1 pp of a from-scratch ResNet18 while training
   only a linear head, and yields a much higher macro-F1 than the scratch model (better
   class balance / calibration).
 
@@ -57,12 +57,12 @@ distribution, evaluated with a frozen backbone.
 
 ## 4. Defense & autonomy relevance
 
-Aerial and maritime perception underpins autonomous surface/airborne platforms: harbor
-monitoring, coastal ISR, and search-and-rescue all rely on robust object cues under
-variable altitude and lighting. Self-supervised pretraining on cheap unlabeled imagery
-reduces the labeled-data burden for mission-specific adaptation, and the looped encoder's
-transfer advantage suggests recurrence is a useful inductive bias for domain shift. The
-compact footprint keeps inference viable on edge/embedded autonomy hardware.
+Aerial and maritime perception underpins autonomous surface and airborne platforms: harbor
+monitoring, coastal intelligence, surveillance, and reconnaissance (ISR), and search-and-rescue
+all rely on robust object cues under variable altitude and lighting. Self-supervised pretraining
+on cheap unlabeled imagery reduces the labeled-data burden for mission-specific adaptation, and
+the looped encoder's transfer advantage suggests recurrence is a useful inductive bias for
+domain shift. The compact footprint keeps inference viable on edge and embedded autonomy hardware.
 
 ## 5. How to run
 

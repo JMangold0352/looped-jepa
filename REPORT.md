@@ -1,13 +1,13 @@
 # I-JEPA CIFAR-10 v3: Training Report
 
-2026-06-28 20:04
+_Training report, 2025._
 
 ## Recipe (v3)
 
 - **Model**: ~9.9M trainable params
   - Encoder: ViT, embed_dim=384, depth=5, num_heads=6, mlp_ratio=4.0, drop_path=0.1
   - Predictor: ViT, embed_dim=128, depth=4, num_heads=4, mlp_ratio=4.0
-  - Honest trainable count: 9,816,960
+  - Exact trainable count: 9,816,960
 - **Dataset**: CIFAR-10, 32×32, patch_size 4 (8×8 grid = 64 patches)
 - **Schedule**: 300 epochs, AdamW lr=2e-3, weight_decay 0.05, batch_size 256, 15-epoch warmup + cosine decay
 - **EMA**: 0.996 → 0.9999 linear (capped below 1.0 to avoid the no-op final step that decayed feat_std in v1)
@@ -75,13 +75,13 @@
    0.9999 keeps the teacher moving without over-weighting the noisy final-step
    student.
 
-(The dead `tgt_proj` parameter was already removed in the 45082fa commit;
-honest trainable count is 9,866,240 per the git history, 9,816,960 by direct
-count in v3; the difference is small parameter-pruning between commits.)
+(The unused `tgt_proj` parameter was already removed in commit 45082fa. The exact
+trainable count is 9,866,240 according to the git history and 9,816,960 by direct
+count in v3; the difference reflects minor parameter pruning between commits.)
 
 ## Target & methodology note
 
-- **Target**: 83% (honest methodology, not forcing 85%) for the ~10M-param scale. v3 landed at 77.21%, below target but a clean, honest baseline with no collapse and a stable probe trajectory.
+- **Target**: 83% top-1 (set with honest methodology rather than inflated to 85%) for the ~10M-parameter scale. v3 reached 77.21%, below target but a clean baseline with no collapse and a stable probe trajectory.
 - The official number is the **tuned** linear probe (LR sweep + standardization), not the periodic fixed-LR probe. The periodic probes are trend indicators only.
 - feat_std is a collapse diagnostic: healthy values are ~0.2–0.4; values near 0 signal representation collapse. v3 held 0.16–0.30 throughout, no collapse.
 - No test-set tuning, no cherry-picking the best epoch's probe.

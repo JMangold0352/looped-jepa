@@ -1,4 +1,4 @@
-"""Per-loop deep-dive figures for the looped predictor (Prompt 3)."""
+"""Per-loop deep-dive figures for the looped predictor."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -223,7 +223,7 @@ def generate_all_loop_analysis(
     class_names: list[str],
     out_dir: Path,
 ) -> None:
-    """Write the full Prompt 3 figure set to ``out_dir``."""
+    """Write the full per-loop figure set to ``out_dir``."""
     out_dir.mkdir(parents=True, exist_ok=True)
     plot_exit_distribution_deep(records, out_dir / "01_exit_distribution")
     plot_cosine_and_l1_by_loop(records, class_names, out_dir / "02_cosine_l1_by_loop")

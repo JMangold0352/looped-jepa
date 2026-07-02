@@ -1,9 +1,10 @@
 # Model Card: I-JEPA CIFAR-10 **v3 Looped Predictor**
 
-An Ouroboros-style **weight-shared recurrent predictor** variant of the v3 baseline. The
-encoder, augmentation, and training schedule are identical to v3; the only change is that
-the standard ViT predictor is wrapped in a `LoopedPredictor` that reuses the same block
-stack for multiple refinement steps, with a learned per-loop **exit gate**.
+A **weight-shared recurrent predictor** variant of the v3 baseline (Ouroboros-style, meaning
+the predictor feeds its own refined output back as input). The encoder, augmentation, and
+training schedule are identical to v3; the only change is that the standard ViT predictor is
+wrapped in a `LoopedPredictor` that reuses the same block stack for multiple refinement steps,
+with a learned per-loop **exit gate**.
 
 | Field | Value |
 | --- | --- |
@@ -118,10 +119,10 @@ python visualizations/generate_all_figures.py --loop-analysis-only
 
 Adaptive-depth inference is attractive for autonomous platforms with **variable compute
 budgets**: the exit gate lets the model spend more refinement loops on hard inputs and
-fewer on easy ones, trading latency for quality per-sample rather than globally. Combined
-with the observed transfer advantage on aerial imagery, the looped encoder is a good
-candidate when adapting a compact pretrained backbone to mission-specific ISR tasks under
-edge constraints.
+fewer on easy ones, trading latency for quality per sample rather than globally. Combined
+with the observed transfer advantage on aerial imagery, the looped encoder is a strong
+candidate when adapting a compact pretrained backbone to mission-specific intelligence,
+surveillance, and reconnaissance (ISR) tasks under edge constraints.
 
 ## 6. How to load & run
 
@@ -151,10 +152,10 @@ python scripts/compare_looped_v3.py \
 ## 7. Citation
 
 ```bibtex
-@misc{jepa_cifar10_v3_looped,
+@misc{mangold2025jepav3looped,
   title  = {I-JEPA CIFAR-10 v3 Looped Predictor},
-  author = {jepa-ouro},
-  year   = {2026},
+  author = {John Mangold},
+  year   = {2025},
   note   = {Weight-shared recurrent predictor with learned exit gate}
 }
 ```

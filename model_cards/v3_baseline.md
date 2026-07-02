@@ -119,11 +119,12 @@ python scripts/linear_probe.py \
 
 Label-efficient perception matters most where annotation is scarce and deployment
 timelines are tight, exactly the regime of many defense and autonomy programs. A
-compact (<10M param) self-supervised encoder can be pretrained on abundant *unlabeled*
-sensor imagery and then adapted to mission-specific tasks (e.g. aerial/maritime ISR,
-harbor monitoring, search-and-rescue) with only a small labeled head. The transfer
-experiments in this repo demonstrate the frozen encoder generalizing to aerial imagery;
-the small footprint is compatible with edge/embedded inference on autonomous platforms.
+compact (<10M-parameter) self-supervised encoder can be pretrained on abundant *unlabeled*
+sensor imagery and then adapted to mission-specific tasks (for example, aerial and maritime
+intelligence, surveillance, and reconnaissance (ISR), harbor monitoring, and search-and-rescue)
+with only a small labeled head. The transfer experiments in this repository show the frozen
+encoder generalizing to aerial imagery, and the small footprint is compatible with
+edge and embedded inference on autonomous platforms.
 
 ## 6. How to load & run
 
@@ -146,10 +147,10 @@ features = model.encoder.forward_all_patches(images)  # (B, 64, 384)
 ## 7. Citation
 
 ```bibtex
-@misc{jepa_cifar10_v3,
+@misc{mangold2025jepav3baseline,
   title  = {I-JEPA CIFAR-10 v3 Baseline},
-  author = {jepa-ouro},
-  year   = {2026},
+  author = {John Mangold},
+  year   = {2025},
   note   = {Self-supervised ViT encoder under 10M parameters}
 }
 ```

@@ -1,4 +1,4 @@
-# Per-loop deep dive (Prompt 3)
+# Per-loop deep dive
 
 Per-sample analysis of the **looped v3 predictor** (`checkpoints/baseline_v3_looped/latest.pt`). These figures complement the aggregate plots in `visualizations/figures/` (steps 03 and 04).
 
