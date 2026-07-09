@@ -18,6 +18,7 @@ import argparse
 import json
 
 from jepa.eval.linear_probe import run_linear_probe, run_linear_probe_tuned
+from jepa.utils.cli import require_file
 from jepa.utils.config import load_config
 from jepa.utils.device import get_device
 
@@ -45,6 +46,21 @@ def main() -> None:
         help="Epochs for the tuned probe (ignored if --no-tuned).",
     )
     args = parser.parse_args()
+
+    require_file(
+        args.config,
+        label="Config file",
+        hint="Example: --config configs/image_jepa_cifar10_v3.yaml",
+    )
+    require_file(
+        args.checkpoint,
+        label="Checkpoint file",
+        hint=(
+            "Checkpoints are not committed to git. Train one first, for example:\n"
+            "  python scripts/train_jepa.py --config configs/image_jepa_cifar10_v3.yaml\n"
+            "Output: checkpoints/baseline_v3/latest.pt"
+        ),
+    )
 
     cfg = load_config(args.config)
     device = get_device(cfg.get("device", "auto"))
