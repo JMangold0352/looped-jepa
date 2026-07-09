@@ -8,7 +8,7 @@
 [![PyTorch 2.2+](https://img.shields.io/badge/PyTorch-2.2+-ee4c2c?logo=pytorch&logoColor=white)](pyproject.toml)
 [![Gradio demo](https://img.shields.io/badge/demo-Gradio-f97316?logo=gradio&logoColor=white)](app.py)
 [![Params ~10M](https://img.shields.io/badge/params-~9.9M-54A24B)](model_cards/v3_baseline.md)
-[![License: research](https://img.shields.io/badge/license-research%20%2F%20educational-lightgrey)](#license)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 *Self-supervised ViT encoders · masked latent prediction · adaptive-depth recurrence · publication figures · transfer to aerial imagery*
 
@@ -400,4 +400,4 @@ If you use this codebase or checkpoints in your work, please cite:
 
 ## License
 
-Research and educational use. See config headers for experiment lineage and version history.
+This project is released under the [MIT License](LICENSE). You may use, modify, and distribute the code for personal, research, or commercial purposes, provided the copyright notice and license text are included.
