@@ -22,6 +22,7 @@ import argparse
 from pathlib import Path
 
 from jepa.train import train
+from jepa.utils.cli import require_file
 from jepa.utils.config import load_config
 from jepa.utils.device import get_device
 
@@ -41,6 +42,22 @@ def main() -> None:
         help="Train from scratch even if latest.pt exists in checkpoint_dir",
     )
     args = parser.parse_args()
+
+    require_file(
+        args.config,
+        label="Config file",
+        hint=(
+            "Example:\n"
+            "  python scripts/train_jepa.py --config configs/image_jepa_cifar10_v3.yaml\n"
+            "See REPRODUCTION.md for the full training recipe."
+        ),
+    )
+    if args.resume is not None:
+        require_file(
+            args.resume,
+            label="Resume checkpoint",
+            hint="Pass a valid .pt file or omit --resume to auto-resume from checkpoint_dir/latest.pt",
+        )
 
     cfg = load_config(args.config)
     device = get_device(cfg.get("device", "auto"))
