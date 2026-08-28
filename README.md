@@ -411,7 +411,7 @@ If you use this codebase or checkpoints in your work, please cite:
 | --- | --- |
 | [**looped-jepa**](https://github.com/JMangold0352/looped-jepa) | This repo: static I-JEPA, CIFAR ablations, EuroSAT transfer |
 | [**aerojepa**](https://github.com/JMangold0352/aerojepa) | Child: egocentric drone video JEPA, Wilds fine-tune, closed-loop stress tests |
-| [RESEARCH_ARC.md](RESEARCH_ARC.md) | One-page claim → transfer → AeroJEPA → next questions (no hype) |
+| [RESEARCH_ARC.md](RESEARCH_ARC.md) | Claim, EuroSAT transfer, AeroJEPA follow-up, open questions |
 | [results/scale/](results/scale/) | TinyImageNet scale check (TBD); tests CIFAR penalty vs class count / resolution |
 | [notebooks/visualize_latents.ipynb](notebooks/visualize_latents.ipynb) | Why looped trails baseline on CIFAR without assuming collapse |
 | [released_weights/](released_weights/) | Checkpoint registry + download map (URLs when hosted) |
@@ -424,7 +424,7 @@ Parent ↔ child: looped-jepa documents **−2.1 pp** CIFAR / **+4.0 pp** EuroSA
 
 | Doc | Contents |
 | --- | --- |
-| [**RESEARCH_ARC.md**](RESEARCH_ARC.md) | One-page research arc: claim, domain shift, AeroJEPA, next questions |
+| [**RESEARCH_ARC.md**](RESEARCH_ARC.md) | Research arc: normalization claim, domain shift, AeroJEPA, next steps |
 | [**IJEPA Looped Predictor Report**](docs/IJEPA_Looped_Predictor_Report.md) | Full technical report and extended write-up |
 | [**results/README.md**](results/README.md) | Results, figures, and report links |
 | [**CONTRIBUTING.md**](CONTRIBUTING.md) | How to extend the codebase |

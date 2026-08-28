@@ -1,9 +1,5 @@
 # Research arc
 
-One-page map of what this repo claims, what it measured, and what comes next. No hype.
-
----
-
 ## 1. Claim
 
 Weight-shared recurrent predictors in JEPA need **different normalization** than a single-pass feed-forward predictor.
@@ -69,7 +65,3 @@ I am prioritizing three, not ten:
 - **Not** proof that the exit gate learns adaptive depth (it does not, on current checkpoints).
 
 This repo **is** a controlled ~10M-parameter I-JEPA stack, an honest negative in-domain result, an ablation that isolates normalization, a transfer signal, and the parent study for AeroJEPA.
-
----
-
-*Paste-ready “Parent study” blurb for the AeroJEPA README: [`docs/AEROJEPA_PARENT_STUDY_BLURB.md`](docs/AEROJEPA_PARENT_STUDY_BLURB.md)*
