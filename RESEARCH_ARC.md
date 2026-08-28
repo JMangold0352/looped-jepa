@@ -52,11 +52,3 @@ Video recurrence **does** improve latent alignment; long-horizon future loss **p
 1. **Scale vs modality:** Is the CIFAR penalty a scale effect (200 classes / 64px) or a static-image effect? Configs in [`results/scale/README.md`](results/scale/README.md); not trained yet.
 2. **Adaptive compute:** Can the exit gate spend extra loops on hard aerial / turbulent frames instead of ~50/50 on CIFAR?
 3. **Causal actions:** Can action-conditioned AeroJEPA separate true, zero, and shuffled controls (currently ≈0.994 cosine for all three)?
-
----
-
-## 5. Scope
-
-~10M-parameter I-JEPA on CIFAR-10 with ablations and EuroSAT transfer. Not a foundation model, not flight software, not multi-seed ImageNet. The exit gate does not learn input-dependent depth on current checkpoints.
-
-Parent study for [AeroJEPA](https://github.com/JMangold0352/aerojepa).
