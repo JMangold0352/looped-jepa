@@ -47,21 +47,16 @@ Video recurrence **does** improve latent alignment; long-horizon future loss **p
 
 ---
 
-## 4. Thesis-shaped questions (next 12 months)
+## 4. Open questions
 
-I am prioritizing three, not ten:
-
-1. **Scale vs modality:** Is the CIFAR penalty a **scale effect** (200 classes / 64px) or a **static-image effect**? TinyImageNet configs are in [`results/scale/README.md`](results/scale/README.md); not trained yet.
-2. **Adaptive compute:** Can the exit gate be trained to spend extra loops on **hard aerial / turbulent frames** instead of ~50/50 on CIFAR and ~1.75 fixed steps on video?
-3. **Causal actions:** Can action-conditioned AeroJEPA **separate** true, zero, and shuffled controls on latent rollouts (currently ≈0.994 for all three)?
+1. **Scale vs modality:** Is the CIFAR penalty a scale effect (200 classes / 64px) or a static-image effect? Configs in [`results/scale/README.md`](results/scale/README.md); not trained yet.
+2. **Adaptive compute:** Can the exit gate spend extra loops on hard aerial / turbulent frames instead of ~50/50 on CIFAR?
+3. **Causal actions:** Can action-conditioned AeroJEPA separate true, zero, and shuffled controls (currently ≈0.994 cosine for all three)?
 
 ---
 
-## 5. What this repo is not
+## 5. Scope
 
-- **Not** a foundation model or general vision backbone at ImageNet scale.
-- **Not** onboard flight software or a certified autonomy stack.
-- **Not** multi-seed ImageNet or a claim that looped predictors always beat feed-forward.
-- **Not** proof that the exit gate learns adaptive depth (it does not, on current checkpoints).
+~10M-parameter I-JEPA on CIFAR-10 with ablations and EuroSAT transfer. Not a foundation model, not flight software, not multi-seed ImageNet. The exit gate does not learn input-dependent depth on current checkpoints.
 
-This repo **is** a controlled ~10M-parameter I-JEPA stack, an honest negative in-domain result, an ablation that isolates normalization, a transfer signal, and the parent study for AeroJEPA.
+Parent study for [AeroJEPA](https://github.com/JMangold0352/aerojepa).

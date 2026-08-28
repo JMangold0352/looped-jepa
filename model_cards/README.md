@@ -1,8 +1,6 @@
-# Model Cards
+# Model cards
 
-Professional model cards for every released model in this repository. Each card documents
-architecture, training, performance (linear probe + ablations), limitations, intended use
-(including defense/autonomy relevance), and load-and-run instructions.
+Architecture, training recipe, probe numbers, limitations, and load instructions for each checkpoint.
 
 | Card | Summary | Headline metric |
 | --- | --- | ---: |

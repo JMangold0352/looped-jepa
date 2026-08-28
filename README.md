@@ -26,11 +26,9 @@
 
 ## Hook
 
-**Image-JEPA** (LeCun et al.) learns visual representations by predicting *latent* embeddings of masked regions from context, with no pixels and no contrastive negatives. This repository implements a **faithful, end-to-end I-JEPA pipeline** on CIFAR-10 and asks a question central to embodied AI and world models:
+**Image-JEPA** (LeCun et al.) learns representations by predicting latent embeddings of masked regions from context. This repo implements I-JEPA on CIFAR-10 and asks whether the predictor should be **recurrent**: multiple shared-weight steps with a learned exit gate.
 
-> *What if the predictor that fills in missing latent structure is **recurrent**, refining its guess over multiple shared-weight steps, with a learned exit gate that spends compute only where needed?*
-
-This project releases everything needed to reproduce that study: two trained models (baseline and looped), a **seven-variant ablation suite**, publication-quality visualizations (including how attention evolves across loops), aerial transfer experiments, and an interactive Gradio demo. The entire stack stays under **~9.9M trainable parameters**, small enough for edge deployment and fast iteration.
+The repo includes baseline and looped checkpoints, a seven-variant ablation suite, figure scripts, EuroSAT transfer numbers, and a Gradio demo. Trainable params stay under **~9.9M**.
 
 ---
 
@@ -38,12 +36,12 @@ This project releases everything needed to reproduce that study: two trained mod
 
 JEPA-style training treats perception as **predictive coding in representation space**: the encoder sees a partial view, and the predictor infers what the full scene *means* in latent space, supervised by an exponential moving average (EMA) teacher. That is already a primitive world model, but the standard predictor runs as a **single feed-forward pass**.
 
-**Recurrent latent dynamics** mirror how agents refine beliefs step by step: early loops capture coarse structure, and later loops resolve ambiguity. Because the loop reuses one **weight-shared** block stack, this added depth costs **zero extra parameters**; only the amount of computation grows. A learned **exit gate** then makes that depth adaptive, so easy inputs stop early while hard inputs keep refining.
+**Recurrent latent dynamics** reuse one **weight-shared** block stack, so extra depth adds compute but not parameters. A learned **exit gate** can stop after each loop; on the shipped CIFAR checkpoint it is roughly uniform (mean depth **1.5**, not input-dependent yet).
 
 Two terms recur throughout this README:
 
-- **Exit gate** — a small learned head that, after each loop, estimates the probability that refinement can stop. It turns a fixed-depth predictor into an adaptive-depth one.
-- **Sandwich RMSNorm** — RMS normalization applied both *before and after* each attention and feed-forward sub-layer in the predictor (rather than only once, before each sub-layer). This paired placement stabilizes the shared-weight loop and, as the ablations show, is what makes recurrence actually pay off.
+- **Exit gate** — per-loop stop probability. Trained with an entropy regularizer; on CIFAR-10 val it splits ~50/50 across two loops.
+- **Sandwich RMSNorm** — RMSNorm before and after each predictor sub-layer. Best ablation (+1.05 pp over baseline); normalization mattered more than adding loops.
 
 This repository isolates the predictor change while holding the v3 encoder recipe fixed, so the comparisons stay honest. Along the way I document stability lessons that matter at small scale:
 
@@ -96,16 +94,15 @@ Details: [`results/ablations/summary.md`](results/ablations/summary.md)
 
 ---
 
-### Defense and Autonomy Applications
-The looped predictor’s adaptive compute design is well-suited for resource-constrained edge systems common in defense and autonomous platforms. 
+## Transfer and AeroJEPA
 
-The learned exit gate allows the model to allocate additional computation only when needed, which is valuable for deployment on drones and other unmanned systems. Strong transfer performance to an aerial maritime drone dataset further supports its potential for real-world autonomy applications.
+Frozen looped encoder: **−2.1 pp** on CIFAR-10, **+4.0 pp** on EuroSAT vs the same baseline ([transfer results](results/transfer/transfer_results.md)). Video follow-up: [**AeroJEPA**](https://github.com/JMangold0352/aerojepa) (egocentric drone clips; closed-loop L-turn stress tests still fail). Research code only — not onboard flight software.
 
 ---
 
 ## Visual gallery
 
-**Explainer notebook:** [`notebooks/visualize_latents.ipynb`](notebooks/visualize_latents.ipynb) walks through the CIFAR baseline vs looped gap (t-SNE, separation metrics, feat_std, exit gate) with links to the pre-built figures below. Summary bullets: [`notebooks/FINDINGS.md`](notebooks/FINDINGS.md).
+[`notebooks/visualize_latents.ipynb`](notebooks/visualize_latents.ipynb) — CIFAR baseline vs looped (embeddings, feat_std, exit gate). Summary: [`notebooks/FINDINGS.md`](notebooks/FINDINGS.md).
 
 All figures are generated at **300 DPI** (PNG + PDF). Regenerate with [`visualizations/generate_all_figures.py`](visualizations/generate_all_figures.py).
 
@@ -187,15 +184,13 @@ More: [`visualizations/README.md`](visualizations/README.md)
 
 ## Installation & quickstart
 
-Under a minute after clone (download time excluded):
-
 ```bash
 git clone https://github.com/JMangold0352/looped-jepa.git && cd looped-jepa
 uv sync --extra dev          # or: pip install -e ".[dev]"
 source .venv/bin/activate
 ```
 
-Install from the GitHub repo (`pip install -e .` or `uv sync`). **Not published on PyPI** until pretrained weight URLs are live.
+Install from GitHub (`pip install -e .` or `uv sync`). Not on PyPI until weight URLs are published.
 
 ```bash
 ./scripts/download_weights.sh --list
@@ -260,7 +255,7 @@ python scripts/train_jepa.py --config configs/image_jepa_cifar10_v3_looped.yaml
 
 ```bash
 # Tuned linear probe (official metric)
-python scripts/linear_probe.py \
+looped-jepa-probe \
   --config configs/image_jepa_cifar10_v3.yaml \
   --checkpoint checkpoints/baseline_v3/latest.pt
 
@@ -335,8 +330,6 @@ Qualitative saliency: `results/transfer/qualitative_baseline_gradcam.png` · Ful
 
 ## Model cards
 
-Professional cards with architecture diagrams, training recipes, performance tables, limitations, defense/autonomy relevance, and load-and-run snippets.
-
 | Card | Summary |
 | --- | --- |
 | [**v3 baseline**](model_cards/v3_baseline.md) | I-JEPA ViT encoder, non-looped predictor, **77.23%** |
@@ -348,36 +341,19 @@ Version hubs: [`v3_baseline/`](v3_baseline/) · [`v3_looped/`](v3_looped/)
 
 ---
 
-## Relevance to defense, autonomy & edge AI
-
-The core constraints in this project (compact models, label efficiency, and interpretable inference) align directly with the requirements of autonomous and defense perception systems.
-
-| Theme | Connection |
-| --- | --- |
-| **Aerial & maritime world models** | Encoders pretrained on abundant unlabeled imagery transfer to aerial domains; the looped variant improves transfer by +4 pp |
-| **Planning & latent dynamics** | Predicting scene *structure* in latent space is a building block for model-based reinforcement learning and predictive world models |
-| **Adaptive compute** | The exit gate allocates depth per sample, spending more computation on difficult inputs where latency budgets allow |
-| **Interpretability** | Per-loop attention maps, exit-depth distributions, and mask-reconstruction panels make predictor behavior directly inspectable |
-| **Edge deployment** | A sub-10M-parameter, 32×32-native stack is compatible with embedded inference after mission-specific adaptation |
-| **Label efficiency** | A frozen self-supervised backbone with a small linear head reduces annotation requirements for new classes |
-
-This is research code rather than a deployed system, but the end-to-end workflow (train → ablate → visualize → transfer → demo) is intended to be readable and straightforward to extend for autonomy and defense research.
-
----
-
 ## Repository layout
 
 ```
 looped-jepa/
-├── v3_baseline/ · v3_looped/     Version hubs (config + checkpoint pointers)
-├── model_cards/                  Professional model documentation
-├── results/                      Ablation + transfer JSON/MD summaries
-├── visualizations/               Figure code + rendered outputs
-├── app.py · demo/                Gradio interactive demo
-├── src/jepa/                     Core library (models, train, eval, masking)
+├── src/jepa/              Core library (load_ijepa, models, train, eval)
 ├── configs/ · scripts/ · tests/
-├── checkpoints/ · data/ · runs/  (gitignored, local artifacts)
-└── docs/                         Technical report, code review
+├── released_weights/      Checkpoint registry (URLs when hosted)
+├── notebooks/             Latent-space analysis
+├── results/               Ablations, transfer, scale experiment table
+├── visualizations/        Figure scripts
+├── model_cards/ · docs/
+├── app.py · demo/         Gradio demo
+└── checkpoints/ · data/   (gitignored)
 ```
 
 ---
@@ -410,13 +386,11 @@ If you use this codebase or checkpoints in your work, please cite:
 | Repo | Role |
 | --- | --- |
 | [**looped-jepa**](https://github.com/JMangold0352/looped-jepa) | This repo: static I-JEPA, CIFAR ablations, EuroSAT transfer |
-| [**aerojepa**](https://github.com/JMangold0352/aerojepa) | Child: egocentric drone video JEPA, Wilds fine-tune, closed-loop stress tests |
-| [RESEARCH_ARC.md](RESEARCH_ARC.md) | Claim, EuroSAT transfer, AeroJEPA follow-up, open questions |
-| [results/scale/](results/scale/) | TinyImageNet scale check (TBD); tests CIFAR penalty vs class count / resolution |
-| [notebooks/visualize_latents.ipynb](notebooks/visualize_latents.ipynb) | Why looped trails baseline on CIFAR without assuming collapse |
-| [released_weights/](released_weights/) | Checkpoint registry + download map (URLs when hosted) |
-
-Parent ↔ child: looped-jepa documents **−2.1 pp** CIFAR / **+4.0 pp** EuroSAT; AeroJEPA documents **+0.7 pp** video latent cosine, flat **~0.97** rollouts, failed action counterfactuals, and **0%** hard L-turn closed-loop success.
+| [**aerojepa**](https://github.com/JMangold0352/aerojepa) | Video JEPA on egocentric drone clips (child project) |
+| [RESEARCH_ARC.md](RESEARCH_ARC.md) | How this repo connects to AeroJEPA and open questions |
+| [results/scale/](results/scale/) | TinyImageNet scale check (not trained yet) |
+| [notebooks/visualize_latents.ipynb](notebooks/visualize_latents.ipynb) | CIFAR baseline vs looped embedding analysis |
+| [released_weights/](released_weights/) | Checkpoint registry and download map |
 
 ---
 

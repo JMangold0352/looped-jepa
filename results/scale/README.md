@@ -2,7 +2,7 @@
 
 **Hypothesis (one sentence):** If the CIFAR penalty shrinks or flips at 200 classes / 64px, recurrence is scale-sensitive; if it holds, the penalty is robust and the EuroSAT gain is a domain effect.
 
-This folder tracks a **≤3 GPU-day** comparison using the **v3 recipe** (same encoder/predictor widths, tuned linear probe protocol). TinyImageNet training is **not started here** — configs and probe script are ready; fill the TBD row after a 300-epoch run (single seed 42 is acceptable if labeled).
+This folder holds configs and probe scripts for a TinyImageNet-200 comparison (≤3 GPU-days, v3 recipe). CIFAR-10 and EuroSAT rows are filled from published runs; TinyImageNet is not trained yet.
 
 ## Results table
 
@@ -31,7 +31,7 @@ Only `data.dataset`, `img_size`, `patch_size`, and `num_classes` change in confi
 ## Reproduce
 
 ```bash
-# Train (after you are ready — not run in the scaffold PR)
+# Train (300 epochs, when ready)
 python scripts/train_jepa.py --config configs/image_jepa_tinyimagenet_v3.yaml
 python scripts/train_jepa.py --config configs/image_jepa_tinyimagenet_v3_looped.yaml
 

@@ -29,6 +29,6 @@ Load: `from jepa import load_ijepa; model = load_ijepa("baseline_v3", pretrained
 
 - **EuroSAT transfer** (frozen encoders): baseline **72.75%** → looped **76.75%** (+4.0 pp).
 - Default looped LayerNorm **trails** in-domain CIFAR; **sandwich-RMSNorm** beats baseline (+1.05 pp).
-- Exit gate is ~uniform on CIFAR; adaptive depth is architectural, not yet learned.
+- Exit gate on CIFAR: ~uniform (~50/50 at loops 1–2).
 
-**License:** MIT · **Code:** [github.com/JMangold0352/looped-jepa](https://github.com/JMangold0352/looped-jepa) · Weights: URLs in repo `released_weights/urls.yaml` (not on PyPI until published).
+**License:** MIT · **Code:** [github.com/JMangold0352/looped-jepa](https://github.com/JMangold0352/looped-jepa)

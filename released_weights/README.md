@@ -67,7 +67,7 @@ If `pretrained=True` and the checkpoint is missing locally, the loader attempts 
 when URLs are configured. With placeholder URLs, use `scripts/download_weights.sh` after
 URLs are published, or pass `checkpoint="/path/to/latest.pt"`.
 
-## Quick sanity check (64 validation images)
+## Forward pass check (64 val images)
 
 ```bash
 uv sync --extra dev
