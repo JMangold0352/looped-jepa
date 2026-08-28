@@ -1,10 +1,12 @@
 [project]
-name = "jepa-ouro"
+name = "looped-jepa"
 version = "0.1.0"
-description = "I-JEPA-style image model with Ouro looped predictor adaptation"
+description = "I-JEPA on CIFAR-10 with a weight-shared looped predictor, ablations, and released checkpoints"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
+authors = [{ name = "John Mangold" }]
+keywords = ["jepa", "self-supervised", "vit", "cifar10", "world-models", "recurrent-predictor"]
 dependencies = [
     "torch>=2.2.0",
     "torchvision>=0.17.0",
@@ -14,11 +16,20 @@ dependencies = [
     "matplotlib>=3.8.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/JMangold0352/looped-jepa"
+Repository = "https://github.com/JMangold0352/looped-jepa"
+Documentation = "https://github.com/JMangold0352/looped-jepa/blob/main/docs/IJEPA_Looped_Predictor_Report.md"
+Issues = "https://github.com/JMangold0352/looped-jepa/issues"
+
 [project.optional-dependencies]
 dev = ["pytest>=8.0.0"]
 demo = ["gradio>=4.0.0"]
 viz = ["scikit-learn>=1.4.0"]
 transfer = ["roboflow>=1.1.0", "scikit-learn>=1.4.0"]
+
+[project.scripts]
+looped-jepa-probe = "jepa.cli.linear_probe:main"
 
 [build-system]
 requires = ["hatchling"]

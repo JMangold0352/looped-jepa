@@ -90,6 +90,8 @@ Official metric: **tuned linear probe** on frozen features (cosine learning-rate
 - **Transfer flips the story:** frozen looped encoder **+4.0 pp** over frozen baseline on aerial imagery (see below).
 - Per-loop analysis: mean cosine gain loop 1 → final ≈ **+0.21**; exit gate ≈ **50% / 50%** at loops 1 and 2 (expected depth **1.5**).
 
+**Scale hypothesis:** If the CIFAR penalty shrinks or flips at 200 classes / 64px, recurrence is scale-sensitive; if it holds, the penalty is robust and the EuroSAT gain is a domain effect. See [`results/scale/README.md`](results/scale/README.md).
+
 Details: [`results/ablations/summary.md`](results/ablations/summary.md)
 
 ---
@@ -102,6 +104,8 @@ The learned exit gate allows the model to allocate additional computation only w
 ---
 
 ## Visual gallery
+
+**Explainer notebook:** [`notebooks/visualize_latents.ipynb`](notebooks/visualize_latents.ipynb) walks through the CIFAR baseline vs looped gap (t-SNE, separation metrics, feat_std, exit gate) with links to the pre-built figures below. Summary bullets: [`notebooks/FINDINGS.md`](notebooks/FINDINGS.md).
 
 All figures are generated at **300 DPI** (PNG + PDF). Regenerate with [`visualizations/generate_all_figures.py`](visualizations/generate_all_figures.py).
 
@@ -183,19 +187,29 @@ More: [`visualizations/README.md`](visualizations/README.md)
 
 ## Installation & quickstart
 
+Under a minute after clone (download time excluded):
+
 ```bash
 git clone https://github.com/JMangold0352/looped-jepa.git && cd looped-jepa
-uv sync --extra dev          # or: pip install -r requirements-dev.txt
+uv sync --extra dev          # or: pip install -e ".[dev]"
 source .venv/bin/activate
-
-python scripts/verify_install.py
-python -m pytest tests/test_shapes.py -v
-
-# Official evaluation: requires checkpoint (train or copy weights)
-python scripts/linear_probe.py \
-  --config configs/image_jepa_cifar10_v3.yaml \
-  --checkpoint checkpoints/baseline_v3/latest.pt
 ```
+
+Install from the GitHub repo (`pip install -e .` or `uv sync`). **Not published on PyPI** until pretrained weight URLs are live.
+
+```bash
+./scripts/download_weights.sh --list
+
+# Download weights when URLs are published (skipped if files already exist)
+./scripts/download_weights.sh
+
+# One forward pass + feat_std on 64 CIFAR-10 val images
+python scripts/quickstart_forward.py --model baseline_v3
+```
+
+If you already have checkpoints under `checkpoints/`, the quickstart works without
+downloading. URLs live in [`released_weights/urls.yaml`](released_weights/urls.yaml)
+until Hugging Face links are published; see [`released_weights/README.md`](released_weights/README.md).
 
 **Optional extras**
 
@@ -205,19 +219,27 @@ python scripts/linear_probe.py \
 | `viz` | `uv sync --extra viz` | t-SNE embeddings in figure suite |
 | `transfer` | `uv sync --extra transfer` | Roboflow / EuroSAT transfer |
 
-**Load encoder in Python**
+**Load a released model in Python**
 
 ```python
-import torch
-from jepa.models.jepa import IJEPA
-from jepa.utils.config import load_config
+from jepa import load_ijepa
 
-cfg = load_config("configs/image_jepa_cifar10_v3.yaml")
-model = IJEPA.from_config(cfg)
-ckpt = torch.load("checkpoints/baseline_v3/latest.pt", map_location="cpu", weights_only=False)
-model.load_state_dict(ckpt["model"], strict=False)
-model.eval()
+model = load_ijepa("baseline_v3", pretrained=True, device="cpu")
+# also: "looped_v3", "sandwich_rmsnorm"
+
 features = model.encoder.forward_all_patches(images)  # (B, 64, 384)
+```
+
+Pass `checkpoint="/path/to/latest.pt"` to skip the registry default. With
+`pretrained=True`, missing local files trigger a download only when URLs are
+configured (not while they remain `PLACEHOLDER_URL`).
+
+**Official linear-probe evaluation** (requires a checkpoint):
+
+```bash
+looped-jepa-probe \
+  --config configs/image_jepa_cifar10_v3.yaml \
+  --checkpoint checkpoints/baseline_v3/latest.pt
 ```
 
 ---

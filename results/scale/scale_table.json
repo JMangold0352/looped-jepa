@@ -1,0 +1,39 @@
+{
+  "hypothesis": "If the CIFAR penalty shrinks or flips at 200 classes / 64px, recurrence is scale-sensitive; if it holds, the penalty is robust and the EuroSAT gain is a domain effect.",
+  "seed_note": "TinyImageNet rows will use seed 42 (single seed, labeled in table footnote).",
+  "rows": [
+    {
+      "dataset": "CIFAR-10",
+      "classes": 10,
+      "baseline_top1": 77.23,
+      "looped_top1": 75.13,
+      "delta_pp": -2.10,
+      "feat_std_baseline": 0.1607,
+      "feat_std_looped": 0.1450,
+      "status": "published",
+      "notes": "32×32, patch 4; v3 tuned linear probe"
+    },
+    {
+      "dataset": "EuroSAT (transfer)",
+      "classes": 10,
+      "baseline_top1": 72.75,
+      "looped_top1": 76.75,
+      "delta_pp": 4.0,
+      "feat_std_baseline": 0.1389,
+      "feat_std_looped": 0.1023,
+      "status": "published",
+      "notes": "Frozen CIFAR encoders; aerial maritime proxy"
+    },
+    {
+      "dataset": "TinyImageNet-200",
+      "classes": 200,
+      "baseline_top1": null,
+      "looped_top1": null,
+      "delta_pp": null,
+      "feat_std_baseline": null,
+      "feat_std_looped": null,
+      "status": "TBD",
+      "notes": "64×64, patch 8; ~10M params; train with image_jepa_tinyimagenet_v3*.yaml"
+    }
+  ]
+}

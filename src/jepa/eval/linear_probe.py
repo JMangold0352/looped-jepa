@@ -9,6 +9,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
 from jepa.data.cifar10 import build_dataloaders
+from jepa.data.factory import build_dataloaders_from_config, num_classes_from_config
 from jepa.models.jepa import IJEPA
 from jepa.utils.config import load_config
 from jepa.utils.device import get_device
@@ -296,10 +297,8 @@ def run_linear_probe(
     set_seed(cfg.get("seed", 42))
     model = load_encoder_from_checkpoint(cfg, checkpoint, device)
 
-    train_loader, val_loader = build_dataloaders(
-        cfg["data"]["data_dir"],
-        batch_size=cfg["data"]["batch_size"],
-        num_workers=cfg["data"].get("num_workers", 0),
+    train_loader, val_loader = build_dataloaders_from_config(
+        cfg,
         train_augment=False,
     )
 
@@ -312,6 +311,7 @@ def run_linear_probe(
         epochs=probe_epochs or cfg["eval"].get("probe_epochs", 20),
         probe_lr=cfg["eval"].get("probe_lr", 1e-3),
         weight_decay=cfg["eval"].get("probe_weight_decay", 1e-4),
+        num_classes=num_classes_from_config(cfg),
     )
 
 
@@ -326,10 +326,8 @@ def run_linear_probe_tuned(
     set_seed(cfg.get("seed", 42))
     model = load_encoder_from_checkpoint(cfg, checkpoint, device)
 
-    train_loader, val_loader = build_dataloaders(
-        cfg["data"]["data_dir"],
-        batch_size=cfg["data"]["batch_size"],
-        num_workers=cfg["data"].get("num_workers", 0),
+    train_loader, val_loader = build_dataloaders_from_config(
+        cfg,
         train_augment=False,
     )
 
@@ -342,4 +340,5 @@ def run_linear_probe_tuned(
         epochs=epochs,
         lr_grid=lr_grid,
         weight_decay=cfg["eval"].get("probe_weight_decay", 1e-4),
+        num_classes=num_classes_from_config(cfg),
     )

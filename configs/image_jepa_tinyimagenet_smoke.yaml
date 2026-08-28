@@ -1,0 +1,16 @@
+# Smoke: 1 epoch, tiny batch — verifies Tiny ImageNet loader + forward (not for metrics).
+_base_: image_jepa_tinyimagenet_v3.yaml
+
+data:
+  batch_size: 64
+  num_workers: 0
+
+train:
+  epochs: 1
+  log_every: 1
+  run_dir: runs/tinyimagenet_smoke
+  checkpoint_dir: checkpoints/tinyimagenet_smoke
+
+eval:
+  probe_every_epochs: 999
+  tuned_probe_epochs: 3

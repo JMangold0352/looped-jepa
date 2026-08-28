@@ -1,0 +1,16 @@
+# Pretrained checkpoint URLs (not committed to git).
+# Override any entry with an environment variable (see released_weights/README.md).
+#
+# Hugging Face is preferred; Google Drive is a fallback when both are set and HF fails.
+
+baseline_v3:
+  huggingface: PLACEHOLDER_URL
+  google_drive: PLACEHOLDER_URL
+
+looped_v3:
+  huggingface: PLACEHOLDER_URL
+  google_drive: PLACEHOLDER_URL
+
+sandwich_rmsnorm:
+  huggingface: PLACEHOLDER_URL
+  google_drive: PLACEHOLDER_URL

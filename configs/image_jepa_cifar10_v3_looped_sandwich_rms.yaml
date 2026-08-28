@@ -1,0 +1,11 @@
+# Best ablation: looped predictor with sandwich RMSNorm (78.28% tuned probe).
+# Same v3 encoder recipe as the default looped model; only predictor norm differs.
+_base_: image_jepa_cifar10_v3_looped.yaml
+
+predictor:
+  norm: rms
+  sandwich_norm: true
+
+train:
+  run_dir: runs/ablations/sandwich_norm/sandwich_rms
+  checkpoint_dir: checkpoints/ablations/sandwich_norm/sandwich_rms

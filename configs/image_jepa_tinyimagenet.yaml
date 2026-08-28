@@ -1,0 +1,72 @@
+# Tiny ImageNet-200 base recipe: 64×64, patch 8 → 8×8 = 64 patches (same token grid as CIFAR-10).
+# Encoder/predictor widths match the v3 ~10M trainable budget; only resolution and class count change.
+seed: 42
+device: auto
+
+data:
+  dataset: tiny_imagenet
+  img_size: 64
+  patch_size: 8
+  batch_size: 256
+  num_workers: 8
+  data_dir: data
+  num_classes: 200
+
+encoder:
+  embed_dim: 384
+  depth: 5
+  num_heads: 6
+  mlp_ratio: 4.0
+  dropout: 0.0
+  drop_path: 0.1
+
+predictor:
+  embed_dim: 128
+  depth: 4
+  num_heads: 4
+  mlp_ratio: 4.0
+  dropout: 0.0
+  looped: false
+  ouro: false
+  max_loops: 4
+  use_exit_gate: false
+
+masking:
+  num_target_blocks: 4
+  target_scale: [0.15, 0.2]
+  context_scale: [0.85, 1.0]
+  context_patches_range: [24, 40]
+  target_patches_range: [10, 22]
+  fixed_context_patches: 32
+  fixed_target_patches: 16
+
+augmentation:
+  kind: randaugment
+  randaugment_n: 2
+  randaugment_m: 9
+  use_rrc: true
+  rrc_scale: [0.5, 1.0]
+  rrc_ratio: [0.8, 1.25]
+  rrc_after_ra: false
+
+train:
+  epochs: 300
+  lr: 0.002
+  weight_decay: 0.05
+  warmup_epochs: 15
+  grad_clip: 1.0
+  ema_momentum_start: 0.996
+  ema_momentum_end: 0.9999
+  exit_entropy_beta: 0.01
+  log_every: 50
+  use_wandb: false
+  run_dir: runs/tinyimagenet_baseline_v3
+  checkpoint_dir: checkpoints/tinyimagenet_baseline_v3
+
+eval:
+  probe_lr: 0.001
+  probe_weight_decay: 0.0001
+  probe_epochs: 20
+  probe_every_epochs: 25
+  tuned_probe_epochs: 100
+  tuned_lr_grid: [0.0003, 0.001, 0.003]

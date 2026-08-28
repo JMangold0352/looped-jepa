@@ -1,0 +1,6 @@
+# v3 baseline on Tiny ImageNet-200 (64×64, 200 classes). Same trainable param budget as CIFAR v3.
+_base_: image_jepa_tinyimagenet.yaml
+
+train:
+  run_dir: runs/tinyimagenet_baseline_v3
+  checkpoint_dir: checkpoints/tinyimagenet_baseline_v3

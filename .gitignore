@@ -6,7 +6,9 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 /data/
-checkpoints/
+visualizations/figures/06_scale_comparison.png
+visualizations/figures/06_scale_comparison.pdf
+notebooks/outputs/*.png
 runs/
 logs/
 *.log

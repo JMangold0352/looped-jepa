@@ -10,7 +10,7 @@ from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from jepa.data.cifar10 import build_dataloaders
+from jepa.data.factory import build_dataloaders_from_config, num_classes_from_config
 from jepa.eval.linear_probe import probe_model, probe_model_tuned
 from jepa.masking import IJEPAMaskCollator
 from jepa.models.jepa import IJEPA
@@ -65,10 +65,8 @@ def run_probe(
 ) -> dict[str, float]:
     """Fixed-LR linear probe for in-training monitoring."""
     eval_cfg = cfg.get("eval", {}) or {}
-    probe_train, probe_val = build_dataloaders(
-        cfg["data"]["data_dir"],
-        batch_size=cfg["data"]["batch_size"],
-        num_workers=cfg["data"].get("num_workers", 0),
+    probe_train, probe_val = build_dataloaders_from_config(
+        cfg,
         train_augment=False,
     )
     with torch.enable_grad():
@@ -81,6 +79,7 @@ def run_probe(
             epochs=eval_cfg.get("probe_epochs", 20),
             probe_lr=eval_cfg.get("probe_lr", 1e-3),
             weight_decay=eval_cfg.get("probe_weight_decay", 1e-4),
+            num_classes=num_classes_from_config(cfg),
         )
     return results
 
@@ -92,10 +91,8 @@ def run_probe_tuned(
 ) -> dict[str, float]:
     """Tuned linear probe (cosine LR + grid search) for final reporting."""
     eval_cfg = cfg.get("eval", {}) or {}
-    probe_train, probe_val = build_dataloaders(
-        cfg["data"]["data_dir"],
-        batch_size=cfg["data"]["batch_size"],
-        num_workers=cfg["data"].get("num_workers", 0),
+    probe_train, probe_val = build_dataloaders_from_config(
+        cfg,
         train_augment=False,
     )
     lr_grid = tuple(eval_cfg.get("tuned_lr_grid", (3e-4, 1e-3, 3e-3)))
@@ -109,6 +106,7 @@ def run_probe_tuned(
             epochs=eval_cfg.get("tuned_probe_epochs", 100),
             lr_grid=lr_grid,
             weight_decay=eval_cfg.get("probe_weight_decay", 1e-4),
+            num_classes=num_classes_from_config(cfg),
         )
     return results
 
@@ -250,12 +248,9 @@ def train(
         set_seed(cfg.get("seed", 42))
 
     two_view = bool(cfg.get("two_view", False))
-    train_loader, _ = build_dataloaders(
-        cfg["data"]["data_dir"],
-        batch_size=cfg["data"]["batch_size"],
-        num_workers=cfg["data"].get("num_workers", 0),
+    train_loader, _ = build_dataloaders_from_config(
+        cfg,
         train_augment=True,
-        augmentation=cfg.get("augmentation"),
         two_view=two_view,
     )
 

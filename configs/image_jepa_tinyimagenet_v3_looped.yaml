@@ -1,0 +1,12 @@
+# Looped predictor variant for Tiny ImageNet scale check (same encoder recipe as v3 baseline).
+_base_: image_jepa_tinyimagenet_v3.yaml
+
+predictor:
+  looped: true
+  ouro: false
+  max_loops: 2
+  use_exit_gate: true
+
+train:
+  run_dir: runs/tinyimagenet_looped_v3
+  checkpoint_dir: checkpoints/tinyimagenet_looped_v3

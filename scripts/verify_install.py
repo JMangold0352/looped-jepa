@@ -80,8 +80,13 @@ def main() -> int:
         )
         ok &= _check("pytest tests/test_shapes.py", r.returncode == 0, r.stdout.strip() or r.stderr.strip())
 
+    urls_yaml = ROOT / "released_weights" / "urls.yaml"
+    _check("released_weights/urls.yaml", urls_yaml.exists())
+
     if ok:
         print("\nReady. Next steps:")
+        print("  ./scripts/download_weights.sh --list")
+        print("  python scripts/quickstart_forward.py --model baseline_v3")
         print("  python scripts/linear_probe.py --config configs/image_jepa_cifar10_v3.yaml \\")
         print("    --checkpoint checkpoints/baseline_v3/latest.pt   # if checkpoint present")
         print("  python visualizations/generate_all_figures.py --fast")
